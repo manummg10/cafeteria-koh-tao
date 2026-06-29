@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* Tus estilos globales personalizados */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #fdfbf7; /* Fondo crema cálido */
+    color: #2c2520; /* Color café oscuro para los textos */
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Georgia', serif;
+    letter-spacing: 1px;
+  }
+}
