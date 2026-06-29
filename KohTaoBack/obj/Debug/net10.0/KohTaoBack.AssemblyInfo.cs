@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KohTaoBack")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+30fbc5530d42e651108f0e8de9148caf144c2e89")]
 [assembly: System.Reflection.AssemblyProductAttribute("KohTaoBack")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KohTaoBack")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
