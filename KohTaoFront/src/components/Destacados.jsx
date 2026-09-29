@@ -1,27 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useApiResource } from '../hooks/useApiResource';
 
 function Destacados() {
-  const [productos, setProductos] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
-
-  // 🔄 Llamada al endpoint de Tartas Especiales en .NET
-  useEffect(() => {
-    fetch('http://localhost:5041/api/tartasespeciales')
-      .then((res) => {
-        if (!res.ok) throw new Error('No se pudieron cargar las tentaciones del día.');
-        return res.json();
-      })
-      .then((data) => {
-        setProductos(data);
-        setCargando(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err.message);
-        setCargando(false);
-      });
-  }, []);
+  // 🔄 Tartas especiales desde la API (endpoint público)
+  const { items: productos, cargando, error: errorApi } = useApiResource('/api/tartasespeciales');
+  const error = errorApi ? 'No se pudieron cargar las tentaciones del día.' : null;
 
   return (
     <section id="Tentaciones del día" className="w-full max-w-[1200px] mx-auto py-20 px-5 font-sans">

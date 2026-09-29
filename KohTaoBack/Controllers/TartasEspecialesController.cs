@@ -1,57 +1,45 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using KohTaoBack.Data;
+using KohTaoBack.DTOs;
 using KohTaoBack.Models;
+using KohTaoBack.Services;
 
 namespace KohTaoBack.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [Authorize(Roles = Roles.Admin)]
     public class TartasEspecialesController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ITartaEspecialService _service;
 
-        public TartasEspecialesController(ApplicationDbContext context)
+        public TartasEspecialesController(ITartaEspecialService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: api/tartasespeciales
+        // GET: api/tartasespeciales (público: destacados de la web)
         [HttpGet]
-        public async Task<IActionResult> GetTartasEspeciales()
-        {
-            try
-            {
-                // Al traer la lista directa, Entity Framework leerá "imagen_url" 
-                // gracias a la etiqueta [Column] del modelo.
-                var tartas = await _context.TartasEspeciales.ToListAsync();
-                return Ok(tartas);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno al cargar las tartas: {ex.Message}");
-            }
-        }
+        [AllowAnonymous]
+        public async Task<ActionResult<IReadOnlyList<TartaEspecialDto>>> GetTartasEspeciales(CancellationToken ct) =>
+            Ok(await _service.ListarAsync(ct));
 
         // POST: api/tartasespeciales
         [HttpPost]
-        public async Task<IActionResult> PostTartaEspecial([FromBody] TartaEspecial tarta)
+        public async Task<ActionResult<TartaEspecialDto>> PostTartaEspecial(TartaEspecialGuardarDto dto, CancellationToken ct)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                _context.TartasEspeciales.Add(tarta);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetTartasEspeciales), new { id = tarta.Id }, tarta);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al guardar la tarta: {ex.Message}");
-            }
+            var creada = await _service.CrearAsync(dto, ct);
+            return CreatedAtAction(nameof(GetTartasEspeciales), new { id = creada.Id }, creada);
         }
+
+        // PUT: api/tartasespeciales/5
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> PutTartaEspecial(int id, TartaEspecialGuardarDto dto, CancellationToken ct) =>
+            await _service.ActualizarAsync(id, dto, ct) ? NoContent() : NotFound();
+
+        // DELETE: api/tartasespeciales/5
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteTartaEspecial(int id, CancellationToken ct) =>
+            await _service.EliminarAsync(id, ct) ? NoContent() : NotFound();
     }
 }

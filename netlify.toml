@@ -1,0 +1,27 @@
+[build]
+  base = "KohTaoFront"
+  command = "npm run build"
+  publish = "dist"
+
+# La API se sirve desde el mismo dominio que la web: Netlify reenvía /api/* al backend de Render.
+# Así la cookie de sesión es de primera parte (SameSite=Strict) y no hace falta CORS.
+[[redirects]]
+  from = "/api/*"
+  to = "https://kohtao-api.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# SPA: /admin y /admin/dashboard los resuelve React Router
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"

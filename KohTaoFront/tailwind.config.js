@@ -4,12 +4,18 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  // AÑADE ESTO:
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
+  experimental: {
+    // Esto obliga a Tailwind a usar colores estándar en lugar de oklch
+    optimizeUniversalDefaults: true,
+  },
   theme: {
     extend: {
       fontFamily: {
-        // Unificamos la Sans para que sea limpia y moderna (títulos, botones, logo)
         sans: ['Montserrat', 'Inter', 'sans-serif'],
-        // Unificamos la Serif para que tenga ese toque clásico y acogedor de cafetería (descripciones, cursivas)
         serif: ['Playfair Display', 'Georgia', 'serif'],
       },
     },

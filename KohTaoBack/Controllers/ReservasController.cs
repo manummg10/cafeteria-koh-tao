@@ -1,53 +1,45 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using KohTaoBack.Data;
+using KohTaoBack.DTOs;
 using KohTaoBack.Models;
+using KohTaoBack.Services;
 
 namespace KohTaoBack.Controllers
 {
+    // Reservas contienen datos personales (nombre, teléfono): solo el administrador.
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = Roles.Admin)]
     public class ReservasController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IReservaService _service;
 
-        public ReservasController(ApplicationDbContext context)
+        public ReservasController(IReservaService service)
         {
-            _context = context;
+            _service = service;
         }
 
         // GET: api/reservas
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Reserva>>> GetReservas()
-        {
-            return await _context.Reservas.ToListAsync();
-        }
+        public async Task<ActionResult<IReadOnlyList<ReservaDto>>> GetReservas(CancellationToken ct) =>
+            Ok(await _service.ListarAsync(ct));
 
         // POST: api/reservas
         [HttpPost]
-        public async Task<ActionResult<Reserva>> PostReserva(Reserva reserva)
+        public async Task<ActionResult<ReservaDto>> PostReserva(ReservaGuardarDto dto, CancellationToken ct)
         {
-            _context.Reservas.Add(reserva);
-            await _context.SaveChangesAsync();
+            var creada = await _service.CrearAsync(dto, ct);
+            if (creada is null)
+                return Conflict(new { mensaje = $"La mesa {dto.IdMesa} ya está ocupada." });
 
-            // Retornamos un código 201 Created con el ID de la reserva generada
-            return CreatedAtAction(nameof(GetReservas), new { id = reserva.Id }, reserva);
+            return CreatedAtAction(nameof(GetReservas), new { id = creada.Id }, creada);
         }
 
         // DELETE: api/reservas/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteReserva(int id)
-        {
-            var reserva = await _context.Reservas.FindAsync(id);
-            if (reserva == null)
-            {
-                return NotFound(new { mensaje = "La reserva no existe en el sistema." });
-            }
-
-            _context.Reservas.Remove(reserva);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { mensaje = $"Mesa {reserva.IdMesa} liberada correctamente." });
-        }
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteReserva(int id, CancellationToken ct) =>
+            await _service.EliminarAsync(id, ct)
+                ? Ok(new { mensaje = "Mesa liberada correctamente." })
+                : NotFound(new { mensaje = "La reserva no existe en el sistema." });
     }
 }

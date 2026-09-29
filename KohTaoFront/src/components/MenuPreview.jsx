@@ -1,22 +1,9 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
+import { useApiResource } from '../hooks/useApiResource';
 
 function MenuPreview() {
-  const [productos, setProductos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { items: productos, cargando: loading } = useApiResource('/api/productos');
   const [categoriaActiva, setCategoriaActiva] = useState('Cafés');
-
-  useEffect(() => {
-    axios.get('http://localhost:5041/api/productos')
-      .then(response => {
-        setProductos(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("Error al conectar con la API:", error);
-        setLoading(false);
-      });
-  }, []);
 
   const mapearCategoria = (tab) => {
     if (tab === 'Tartas') return 'Dulces';

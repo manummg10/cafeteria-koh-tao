@@ -1,82 +1,45 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using KohTaoBack.Data;
+using KohTaoBack.DTOs;
 using KohTaoBack.Models;
+using KohTaoBack.Services;
 
 namespace KohTaoBack.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = Roles.Admin)]
     public class ProductosController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IProductoService _service;
 
-        public ProductosController(ApplicationDbContext context)
+        public ProductosController(IProductoService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: api/productos (Para listar toda la carta)
+        // GET: api/productos (público: carta de la web)
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Producto>>> GetProductos()
-        {
-            return await _context.Productos.ToListAsync();
-        }
+        [AllowAnonymous]
+        public async Task<ActionResult<IReadOnlyList<ProductoDto>>> GetProductos(CancellationToken ct) =>
+            Ok(await _service.ListarAsync(ct));
 
-        // POST: api/productos (Para añadir un nuevo producto a la carta)
+        // POST: api/productos
         [HttpPost]
-        public async Task<ActionResult<Producto>> PostProducto(Producto producto)
+        public async Task<ActionResult<ProductoDto>> PostProducto(ProductoGuardarDto dto, CancellationToken ct)
         {
-            _context.Productos.Add(producto);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetProductos), new { id = producto.Id }, producto);
+            var creado = await _service.CrearAsync(dto, ct);
+            return CreatedAtAction(nameof(GetProductos), new { id = creado.Id }, creado);
         }
 
-        // ✍️ PUT: api/productos/5 (Para MODIFICAR un producto existente)
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProducto(int id, Producto producto)
-        {
-            if (id != producto.Id)
-            {
-                return BadRequest("El ID del producto no coincide con el de la URL.");
-            }
+        // PUT: api/productos/5
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> PutProducto(int id, ProductoGuardarDto dto, CancellationToken ct) =>
+            await _service.ActualizarAsync(id, dto, ct) ? NoContent() : NotFound();
 
-            _context.Entry(producto).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Productos.Any(e => e.Id == id))
-                {
-                    return NotFound("El producto que intentas modificar ya no existe.");
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // 🗑️ DELETE: api/productos/5 (Para BORRAR un producto de la carta)
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProducto(int id)
-        {
-            var producto = await _context.Productos.FindAsync(id);
-            if (producto == null)
-            {
-                return NotFound("El producto que intentas eliminar no existe.");
-            }
-
-            _context.Productos.Remove(producto);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
+        // DELETE: api/productos/5
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteProducto(int id, CancellationToken ct) =>
+            await _service.EliminarAsync(id, ct) ? NoContent() : NotFound();
     }
 }

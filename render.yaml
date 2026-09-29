@@ -1,0 +1,44 @@
+# Blueprint de Render: API .NET en Docker. Render → New → Blueprint → este repo.
+# Los valores "sync: false" se piden al crear el Blueprint (secretos: nunca en el repo).
+services:
+  - type: web
+    name: kohtao-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: KohTaoBack
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      # MySQL en Aiven, SSL obligatorio. Formato:
+      # Server=<host>;Port=<puerto>;Database=kohtao_db;User=avnadmin;Password=<pass>;SslMode=Required
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Database__ServerVersion
+        value: 8.4.8-mysql
+      - key: Database__MigrarAlArrancar
+        value: "true"
+      # Netlify (proxy /api) → Render (proxy) → app: 2 saltos para obtener la IP real del visitante
+      - key: Proxy__Habilitado
+        value: "true"
+      - key: Proxy__Saltos
+        value: "2"
+      - key: Jwt__Key
+        generateValue: true
+      # Cuenta del propietario: se crea en el primer arranque. Después borra AdminSeed__Password en Render.
+      - key: AdminSeed__Email
+        value: manummg10@gmail.com
+      - key: AdminSeed__Password
+        sync: false
+      # Avisos de inicio de sesión vía SMTP de Resend (usuario "resend", contraseña = API key)
+      - key: Smtp__Host
+        value: smtp.resend.com
+      - key: Smtp__Port
+        value: "587"
+      - key: Smtp__Usuario
+        value: resend
+      - key: Smtp__Password
+        sync: false
+      - key: Smtp__Remitente
+        value: onboarding@resend.dev

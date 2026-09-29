@@ -1,21 +1,22 @@
-import 'react';
 import { Navigate } from 'react-router-dom';
-import PropTypes from 'prop-types'; // <- Importación para solucionar SonarQube
+import PropTypes from 'prop-types';
+import { useAuth } from '../hooks/useAuth';
 
+// Solo controla la navegación: la protección real la hace el backend en cada endpoint.
 function PrivateRoute({ children }) {
-  // Simulamos la autenticación leyendo el almacenamiento local (localStorage)
-  const isAuthenticated = localStorage.getItem('token_koh_tao') === 'true';
+  const { usuario, cargando } = useAuth();
 
-  // Si no está autenticado, lo mandamos directo a la raíz pública
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+  if (cargando) {
+    return <p className="min-h-screen flex items-center justify-center text-sm text-gray-500 italic">Comprobando sesión...</p>;
   }
 
-  // Si está autenticado, le dejamos ver el panel interno
+  if (!usuario) {
+    return <Navigate to="/admin" replace />;
+  }
+
   return children;
 }
 
-// Validación de props para silenciar el aviso javascript:S677
 PrivateRoute.propTypes = {
   children: PropTypes.node.isRequired,
 };
