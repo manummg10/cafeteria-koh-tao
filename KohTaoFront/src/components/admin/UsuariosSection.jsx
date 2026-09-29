@@ -103,7 +103,7 @@ function UsuariosSection() {
             </CampoFormulario>
             <CampoFormulario label="Perfil" htmlFor="usuario-rol">
               <select id="usuario-rol" value={form.rol} onChange={cambiar('rol')} className={`${inputClase} bg-white`}>
-                <option value="Propietario">Propietario (carta, tartas y reservas)</option>
+                <option value="Propietario">Propietario (carta, tartas y encargos)</option>
                 <option value="Desarrollador">Desarrollador (acceso total)</option>
               </select>
             </CampoFormulario>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import api from '../services/api';
 
-// Hook reutilizable para listar y (opcionalmente) mutar un recurso REST: /api/productos, /api/reservas...
+// Hook reutilizable para listar y (opcionalmente) mutar un recurso REST: /api/productos, /api/encargos...
 export function useApiResource(endpoint) {
   const [items, setItems] = useState([]);
   const [cargando, setCargando] = useState(true);

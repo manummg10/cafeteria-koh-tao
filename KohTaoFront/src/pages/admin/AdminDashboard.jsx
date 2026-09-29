@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutGrid, Image, Calendar, UserCog, Users } from 'lucide-react';
+import { LayoutGrid, Image, ClipboardList, UserCog, Users } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { RUTA_PANEL } from '../../config/rutas';
 import { useApiResource } from '../../hooks/useApiResource';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import CartaSection from '../../components/admin/CartaSection';
 import EspecialesSection from '../../components/admin/EspecialesSection';
-import ReservasSection from '../../components/admin/reservas/ReservasSection';
+import EncargosSection from '../../components/admin/encargos/EncargosSection';
+import { ESTADOS_ACTIVOS } from '../../components/admin/encargos/estados';
 import MiCuentaSection from '../../components/admin/MiCuentaSection';
 import UsuariosSection from '../../components/admin/UsuariosSection';
 
@@ -17,7 +18,7 @@ const TODOS = ['Propietario', 'Desarrollador'];
 const SECCIONES = [
   { id: 'carta', etiqueta: 'Gestionar Carta', Icono: LayoutGrid, roles: TODOS },
   { id: 'especiales', etiqueta: 'Especiales del Día', Icono: Image, roles: TODOS },
-  { id: 'reservas', etiqueta: 'Reservas', Icono: Calendar, roles: TODOS },
+  { id: 'encargos', etiqueta: 'Encargos', Icono: ClipboardList, roles: TODOS },
   { id: 'usuarios', etiqueta: 'Usuarios', Icono: Users, roles: ['Desarrollador'] },
   { id: 'cuenta', etiqueta: 'Mi cuenta', Icono: UserCog, roles: TODOS },
 ];
@@ -25,7 +26,8 @@ const SECCIONES = [
 function AdminDashboard() {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
-  const reservas = useApiResource('/api/reservas');
+  const encargos = useApiResource('/api/encargos');
+  const encargosActivos = encargos.items.filter(e => ESTADOS_ACTIVOS.includes(e.estado)).length;
   const [seccionElegida, setSeccionElegida] = useState('carta');
 
   // Con contraseña temporal solo se puede acceder a "Mi cuenta" para cambiarla
@@ -42,7 +44,7 @@ function AdminDashboard() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-[#fdfbf7] font-sans antialiased text-[#2c2520]">
       <AdminSidebar
-        secciones={visibles.map(s => (s.id === 'reservas' ? { ...s, contador: reservas.items.length } : s))}
+        secciones={visibles.map(s => (s.id === 'encargos' ? { ...s, contador: encargosActivos } : s))}
         seccionActiva={seccionActiva}
         onCambiar={setSeccionElegida}
         email={usuario?.email}
@@ -53,7 +55,7 @@ function AdminDashboard() {
       <main className="flex-grow p-4 md:p-10 font-sans min-w-0 overflow-x-hidden">
         {seccionActiva === 'carta' && <CartaSection />}
         {seccionActiva === 'especiales' && <EspecialesSection />}
-        {seccionActiva === 'reservas' && <ReservasSection recurso={reservas} />}
+        {seccionActiva === 'encargos' && <EncargosSection recurso={encargos} />}
         {seccionActiva === 'usuarios' && <UsuariosSection />}
         {seccionActiva === 'cuenta' && <MiCuentaSection />}
       </main>

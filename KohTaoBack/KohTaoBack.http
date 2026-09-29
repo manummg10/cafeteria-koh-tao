@@ -10,7 +10,7 @@ Accept: application/json
 ###
 
 # Debe devolver 401 sin sesión
-GET {{KohTaoBack_HostAddress}}/api/reservas
+GET {{KohTaoBack_HostAddress}}/api/encargos
 Accept: application/json
 
 ###

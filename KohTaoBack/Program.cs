@@ -30,7 +30,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // 🧩 Servicios de negocio
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<ITartaEspecialService, TartaEspecialService>();
-builder.Services.AddScoped<IReservaService, ReservaService>();
+builder.Services.AddScoped<IEncargoService, EncargoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddSingleton<IAvisosSeguridad, AvisosSeguridad>();
