@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NEGOCIO, mapaEmbedUrl, mapaComoLlegarUrl, telefonoHref } from '../config/negocio';
+import { NEGOCIO, lineaLocalidad, mapaEmbedUrl, mapaComoLlegarUrl, telefonoHref } from '../config/negocio';
 
 const FORMULARIO_VACIO = { nombre: '', email: '', mensaje: '' };
 
@@ -126,7 +126,7 @@ function Contacto() {
               Visítanos
             </h3>
             <p className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed">{NEGOCIO.direccion.calle}</p>
-            <p className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed">{NEGOCIO.direccion.cpCiudad}</p>
+            <p className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed">{lineaLocalidad}</p>
             {NEGOCIO.telefono && (
               <a href={telefonoHref} className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed hover:text-[#4a3319] w-fit">{NEGOCIO.telefono}</a>
             )}

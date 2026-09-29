@@ -31,12 +31,14 @@ function HeroSection() {
       
       {/* Contenido Central */}
       <div className="relative z-20 text-white max-w-4xl flex flex-col items-center">
+        {/* Título principal para buscadores y lectores de pantalla (el logo hace de título visual) */}
+        <h1 className="sr-only">Koh Tao Café · Cafetería en El Ejido, Almería · Desayunos y meriendas</h1>
         
         {/* ☕ LOGO CON PROPORCIÓN IGUALADA EN MÓVIL Y WEB */}
         <div className="w-31 h-31 md:w-60 md:h-60 rounded-full bg-white p-5 md:p-10 shadow-xl flex items-center justify-center mb-6 animate-[fadeIn_0.5s_ease-out]">
           <img 
-            src="/logo.png" 
-            alt="Logo Koh Tao" 
+            src="/logo-400.jpg" 
+            alt="Koh Tao Café" 
             className="w-full h-full object-contain translate-x-2" 
             onError={(e) => {
               e.target.style.display = 'none';

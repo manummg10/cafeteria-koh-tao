@@ -37,3 +37,14 @@ Los mensajes llegan a Netlify sin servidor propio (plan gratuito: 100 al mes).
 2. En **Forms → Form notifications**, añade una notificación por email para recibir cada mensaje en el correo de la cafetería.
 
 El campo oculto `bot-field` descarta el spam de bots.
+
+## SEO (buscadores y vista previa al compartir)
+
+Se genera solo en cada build con `KohTaoFront/seo/vitePluginSeo.js`, a partir de `src/config/negocio.js` (bloques `NEGOCIO` y `SEO`):
+- `<title>`, meta descripción, URL canónica y Open Graph (imagen `public/og-image.jpg`, 1200×630).
+- Datos estructurados schema.org `CafeOrCoffeeShop` con la dirección. El teléfono y los perfiles de redes se añaden solos cuando estén en `negocio.js`. El horario **no** se publica hasta tener el real.
+- `robots.txt` y `sitemap.xml`.
+
+Si se compra dominio propio, basta con cambiar `NEGOCIO.sitioUrl`.
+
+**Google Search Console** (una vez): https://search.google.com/search-console → Añadir propiedad → *Prefijo de URL* `https://cafeteriakohtao.netlify.app/` → verificar con **Etiqueta HTML** (copia el valor de `content` y se añade a `index.html`) → Sitemaps → enviar `sitemap.xml` → Inspección de URLs → *Solicitar indexación*.
