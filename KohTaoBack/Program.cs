@@ -37,6 +37,13 @@ builder.Services.AddSingleton<IAvisosSeguridad, AvisosSeguridad>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<EmailQueue>();
 builder.Services.AddSingleton<IEmailQueue>(sp => sp.GetRequiredService<EmailQueue>());
+builder.Services.AddHttpClient(ResendApiEmailSender.HttpClientName, c =>
+{
+    c.BaseAddress = new Uri("https://api.resend.com/");
+    c.Timeout = TimeSpan.FromSeconds(15);
+});
+builder.Services.AddSingleton<ResendApiEmailSender>();
+builder.Services.AddSingleton<SmtpEmailSender>();
 builder.Services.AddHostedService<EmailBackgroundService>();
 
 // 🔐 Autenticación: JWT leído EXCLUSIVAMENTE desde la cookie HttpOnly

@@ -31,7 +31,8 @@ services:
         value: manummg10@gmail.com
       - key: AdminSeed__Password
         sync: false
-      # Avisos de inicio de sesión vía SMTP de Resend (usuario "resend", contraseña = API key)
+      # Avisos por email con Resend. Render gratuito bloquea SMTP: la app usa la API HTTPS de Resend
+      # con la API key de Smtp__Password (o Smtp__ResendApiKey si se define).
       - key: Smtp__Host
         value: smtp.resend.com
       - key: Smtp__Port

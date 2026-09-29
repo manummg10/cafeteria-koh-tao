@@ -27,7 +27,17 @@ namespace KohTaoBack.Options
         public string Remitente { get; set; } = string.Empty;
         public string RemitenteNombre { get; set; } = "Koh Tao Cafetería";
 
-        public bool Configurado => !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(Remitente);
+        // API key de Resend para enviar por HTTPS (Render gratuito bloquea SMTP)
+        public string? ResendApiKey { get; set; }
+
+        // Compatibilidad: con Host smtp.resend.com la contraseña SMTP ES la API key de Resend
+        public string? ApiKeyResendEfectiva =>
+            !string.IsNullOrWhiteSpace(ResendApiKey) ? ResendApiKey
+            : Host.Contains("resend.com", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(Password) ? Password
+            : null;
+
+        public bool Configurado =>
+            !string.IsNullOrWhiteSpace(Remitente) && (ApiKeyResendEfectiva is not null || !string.IsNullOrWhiteSpace(Host));
     }
 
     public class AdminSeedOptions
