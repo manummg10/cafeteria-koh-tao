@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { NEGOCIO, mapaEmbedUrl, mapaComoLlegarUrl, telefonoHref } from '../config/negocio';
 
 function Contacto() {
   const [formData, setFormData] = useState({
@@ -99,27 +100,37 @@ function Contacto() {
             <h3 className="text-xs font-semibold text-[#2c2520] mb-3 font-sans tracking-widest uppercase border-b border-[#c3b7ac]/30 pb-1.5 w-fit">
               Visítanos
             </h3>
-            <p className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed">Calle de la Dulzura, Nº 14</p>
-            <p className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed">25002 Lleida</p>
+            <p className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed">{NEGOCIO.direccion.calle}</p>
+            <p className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed">{NEGOCIO.direccion.cpCiudad}</p>
+            <a href={telefonoHref} className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed hover:text-[#4a3319] w-fit">{NEGOCIO.telefono}</a>
           </div>
 
           <div className="flex flex-col">
             <h3 className="text-xs font-semibold text-[#2c2520] mb-3 font-sans tracking-widest uppercase border-b border-[#c3b7ac]/30 pb-1.5 w-fit">
               Nuestro Horario
             </h3>
-            <p className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed mb-1">
-              <span className="font-sans text-xs font-semibold uppercase tracking-wider text-[#2c2520] not-italic mr-1">Lunes a Viernes:</span> 8:00h - 13:00h | 16:30h - 20:30h
-            </p>
-            <p className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed">
-              <span className="font-sans text-xs font-semibold uppercase tracking-wider text-[#2c2520] not-italic mr-1">Sábados y Domingos:</span> 9:00h - 14:00h | 17:00h - 21:00h
-            </p>
+            {NEGOCIO.horario.map(({ dias, horas }) => (
+              <p key={dias} className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed mb-1">
+                <span className="font-sans text-xs font-semibold uppercase tracking-wider text-[#2c2520] not-italic mr-1">{dias}:</span> {horas}
+              </p>
+            ))}
           </div>
 
-          {/* Caja del mapa */}
-          <div className="w-full h-56 md:h-auto md:flex-grow min-h-[250px] bg-[#ede6de] border border-[#c3b7ac]/60 rounded-xl relative overflow-hidden shadow-inner">
-            <div className="absolute inset-0 flex justify-center items-center text-[#7d7065] font-serif italic text-sm p-4 text-center">
-              <span>📍 Mapa Interactivo (Google Maps)</span>
+          {/* 🗺️ Mapa de Google (embebido, sin API key) */}
+          <div className="flex flex-col gap-2 md:flex-grow">
+            <div className="w-full h-64 md:h-auto md:flex-grow min-h-[250px] bg-[#ede6de] border border-[#c3b7ac]/60 rounded-xl overflow-hidden shadow-inner">
+              <iframe
+                title={`Mapa de ${NEGOCIO.nombre}`}
+                src={mapaEmbedUrl}
+                className="w-full h-full min-h-[250px] border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
             </div>
+            <a href={mapaComoLlegarUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold uppercase tracking-widest text-[#4a3319] hover:text-[#d4b285] w-fit">
+              📍 Cómo llegar
+            </a>
           </div>
         </div>
 

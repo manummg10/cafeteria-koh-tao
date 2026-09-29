@@ -1,4 +1,5 @@
 import { Coffee, MapPin, Phone, Clock, Share2, Globe } from 'lucide-react';
+import { NEGOCIO, direccionCompleta, mapaComoLlegarUrl, telefonoHref } from '../config/negocio';
 
 function Footer() {
   const anioActual = new Date().getFullYear();
@@ -24,18 +25,20 @@ function Footer() {
           <h4 className="font-sans font-semibold text-white uppercase tracking-widest text-xs mb-2 border-b border-[#d4b285]/20 pb-1.5 w-fit">
             Contacto y Horario
           </h4>
-          <div className="flex items-center gap-2 text-sm font-serif italic text-[#e6dfd5]/90">
-            <Clock size={16} className="text-[#d4b285] shrink-0" />
-            <span>Lun - Dom: 8:00h - 21:00h</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm font-serif italic text-[#e6dfd5]/90">
+          {NEGOCIO.horario.map(({ dias, horas }) => (
+            <div key={dias} className="flex items-center gap-2 text-sm font-serif italic text-[#e6dfd5]/90">
+              <Clock size={16} className="text-[#d4b285] shrink-0" />
+              <span>{dias}: {horas}</span>
+            </div>
+          ))}
+          <a href={mapaComoLlegarUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-serif italic text-[#e6dfd5]/90 hover:text-[#d4b285]">
             <MapPin size={16} className="text-[#d4b285] shrink-0" />
-            <span>Carrer Major, Lleida</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm font-serif italic text-[#e6dfd5]/90">
+            <span>{direccionCompleta}</span>
+          </a>
+          <a href={telefonoHref} className="flex items-center gap-2 text-sm font-serif italic text-[#e6dfd5]/90 hover:text-[#d4b285]">
             <Phone size={16} className="text-[#d4b285] shrink-0" />
-            <span>+34 973 00 00 00</span>
-          </div>
+            <span>{NEGOCIO.telefono}</span>
+          </a>
         </div>
 
         {/* Columna 3: Redes Sociales */}
@@ -48,7 +51,7 @@ function Footer() {
           </p>
           <div className="flex gap-4">
             <a 
-              href="https://instagram.com" 
+              href={NEGOCIO.redes.instagram} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="bg-white/10 hover:bg-[#d4b285] hover:text-[#4a3319] p-2.5 rounded-full transition-all duration-300 flex items-center justify-center"
@@ -57,7 +60,7 @@ function Footer() {
               <Globe size={18} />
             </a>
             <a 
-              href="https://facebook.com" 
+              href={NEGOCIO.redes.facebook} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="bg-white/10 hover:bg-[#d4b285] hover:text-[#4a3319] p-2.5 rounded-full transition-all duration-300 flex items-center justify-center"
@@ -72,7 +75,7 @@ function Footer() {
 
       {/* Barra inferior de Copyright */}
       <div className="bg-[#362410] py-4 text-center text-[10px] font-sans uppercase tracking-[0.15em] text-[#d4b285]/50 border-t border-black/10">
-        <p>&copy; {anioActual} Koh Tao Café. Todos los derechos reservados.</p>
+        <p>&copy; {anioActual} {NEGOCIO.nombre}. Todos los derechos reservados.</p>
       </div>
     </footer>
   );
