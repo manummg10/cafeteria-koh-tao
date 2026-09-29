@@ -8,7 +8,7 @@ namespace KohTaoBack.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Policy = Politicas.GestionCafeteria)]
     public class TartasEspecialesController : ControllerBase
     {
         private readonly ITartaEspecialService _service;

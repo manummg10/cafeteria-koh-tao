@@ -8,28 +8,28 @@ using KohTaoBack.Services.Email;
 namespace KohTaoBack.Services
 {
     public enum ResultadoLogin { Ok, CredencialesInvalidas, Bloqueado }
-
-    public record ContextoLogin(string? Ip, string? Navegador);
+    public enum ResultadoCambioPassword { Ok, PasswordActualIncorrecta, MismaPassword, UsuarioNoEncontrado }
 
     public interface IAuthService
     {
         Task<(ResultadoLogin Resultado, Usuario? Usuario)> LoginAsync(string email, string password, ContextoLogin ctx, CancellationToken ct);
+        Task<(ResultadoCambioPassword Resultado, Usuario? Usuario)> CambiarPasswordAsync(int usuarioId, string actual, string nueva, ContextoLogin ctx, CancellationToken ct);
     }
 
     public class AuthService : IAuthService
     {
         // Hash ficticio para igualar el tiempo de respuesta cuando el email no existe (evita enumeración de usuarios)
-        private static readonly string HashFicticio = BCrypt.Net.BCrypt.HashPassword("koh-tao-dummy-password", 12);
+        private static readonly string HashFicticio = PasswordPolicy.Hash("koh-tao-dummy-password");
 
         private readonly ApplicationDbContext _context;
-        private readonly IEmailQueue _emails;
+        private readonly IAvisosSeguridad _avisos;
         private readonly SeguridadLoginOptions _seguridad;
         private readonly ILogger<AuthService> _logger;
 
-        public AuthService(ApplicationDbContext context, IEmailQueue emails, IOptions<SeguridadLoginOptions> seguridad, ILogger<AuthService> logger)
+        public AuthService(ApplicationDbContext context, IAvisosSeguridad avisos, IOptions<SeguridadLoginOptions> seguridad, ILogger<AuthService> logger)
         {
             _context = context;
-            _emails = emails;
+            _avisos = avisos;
             _seguridad = seguridad.Value;
             _logger = logger;
         }
@@ -41,7 +41,7 @@ namespace KohTaoBack.Services
 
             if (usuario is null)
             {
-                BCrypt.Net.BCrypt.Verify(password, HashFicticio);
+                PasswordPolicy.Verificar(password, HashFicticio);
                 _logger.LogWarning("Login fallido (usuario inexistente) desde {Ip}", ctx.Ip);
                 return (ResultadoLogin.CredencialesInvalidas, null);
             }
@@ -52,7 +52,7 @@ namespace KohTaoBack.Services
                 return (ResultadoLogin.Bloqueado, null);
             }
 
-            if (!BCrypt.Net.BCrypt.Verify(password, usuario.PasswordHash))
+            if (!PasswordPolicy.Verificar(password, usuario.PasswordHash))
             {
                 usuario.IntentosFallidos++;
                 var bloquear = usuario.IntentosFallidos >= _seguridad.MaxIntentosFallidos;
@@ -60,7 +60,7 @@ namespace KohTaoBack.Services
                 {
                     usuario.BloqueadoHastaUtc = DateTime.UtcNow.AddMinutes(_seguridad.MinutosBloqueo);
                     usuario.IntentosFallidos = 0;
-                    _emails.Encolar(CrearAvisoBloqueo(usuario, ctx));
+                    _avisos.CuentaBloqueada(usuario, ctx);
                 }
                 await _context.SaveChangesAsync(ct);
                 _logger.LogWarning("Login fallido (contraseña) desde {Ip}. Bloqueo: {Bloqueo}", ctx.Ip, bloquear);
@@ -72,56 +72,32 @@ namespace KohTaoBack.Services
             usuario.UltimoAccesoUtc = DateTime.UtcNow;
             await _context.SaveChangesAsync(ct);
 
-            _emails.Encolar(CrearAvisoAcceso(usuario, ctx));
+            _avisos.AccesoCorrecto(usuario, ctx);
             _logger.LogInformation("Login correcto del usuario {UsuarioId} desde {Ip}", usuario.Id, ctx.Ip);
             return (ResultadoLogin.Ok, usuario);
         }
 
-        private EmailMensaje CrearAvisoAcceso(Usuario u, ContextoLogin ctx) => new(
-            u.Email,
-            "Koh Tao · Nuevo acceso al panel de administración",
-            $"""
-            Hola,
-
-            Se ha iniciado sesión en el panel de administración de Koh Tao.
-
-              Fecha y hora: {HoraLocal(DateTime.UtcNow)}
-              Dirección IP: {ctx.Ip ?? "desconocida"}
-              Navegador:    {Recortar(ctx.Navegador)}
-
-            Si has sido tú, no tienes que hacer nada.
-            Si NO reconoces este acceso, cambia tu contraseña inmediatamente.
-            """);
-
-        private EmailMensaje CrearAvisoBloqueo(Usuario u, ContextoLogin ctx) => new(
-            u.Email,
-            "Koh Tao · Cuenta bloqueada temporalmente",
-            $"""
-            Hola,
-
-            Se han detectado {_seguridad.MaxIntentosFallidos} intentos fallidos de acceso al panel de Koh Tao.
-            La cuenta queda bloqueada durante {_seguridad.MinutosBloqueo} minutos.
-
-              Fecha y hora: {HoraLocal(DateTime.UtcNow)}
-              Dirección IP: {ctx.Ip ?? "desconocida"}
-
-            Si no has sido tú, alguien podría estar intentando acceder a tu cuenta.
-            """);
-
-        private string HoraLocal(DateTime utc)
+        public async Task<(ResultadoCambioPassword, Usuario?)> CambiarPasswordAsync(int usuarioId, string actual, string nueva, ContextoLogin ctx, CancellationToken ct)
         {
-            try
-            {
-                var zona = TimeZoneInfo.FindSystemTimeZoneById(_seguridad.ZonaHoraria);
-                return TimeZoneInfo.ConvertTimeFromUtc(utc, zona).ToString("dd/MM/yyyy HH:mm:ss") + $" ({_seguridad.ZonaHoraria})";
-            }
-            catch (TimeZoneNotFoundException)
-            {
-                return utc.ToString("dd/MM/yyyy HH:mm:ss") + " (UTC)";
-            }
-        }
+            var usuario = await _context.Usuarios.FindAsync([usuarioId], ct);
+            if (usuario is null) return (ResultadoCambioPassword.UsuarioNoEncontrado, null);
 
-        private static string Recortar(string? texto) =>
-            string.IsNullOrWhiteSpace(texto) ? "desconocido" : texto.Length > 200 ? texto[..200] : texto;
+            if (!PasswordPolicy.Verificar(actual, usuario.PasswordHash))
+            {
+                _logger.LogWarning("Cambio de contraseña rechazado (actual incorrecta) para {UsuarioId}", usuarioId);
+                return (ResultadoCambioPassword.PasswordActualIncorrecta, null);
+            }
+
+            if (actual == nueva) return (ResultadoCambioPassword.MismaPassword, null);
+
+            usuario.PasswordHash = PasswordPolicy.Hash(nueva);
+            usuario.DebeCambiarPassword = false;
+            usuario.VersionSesion++; // cierra el resto de sesiones abiertas
+            await _context.SaveChangesAsync(ct);
+
+            _avisos.PasswordCambiada(usuario, ctx);
+            _logger.LogInformation("Contraseña cambiada por el usuario {UsuarioId}", usuarioId);
+            return (ResultadoCambioPassword.Ok, usuario);
+        }
     }
 }

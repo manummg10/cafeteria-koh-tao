@@ -41,7 +41,17 @@ function AuthProvider({ children }) {
     }
   }, []);
 
-  const valor = useMemo(() => ({ usuario, cargando, login, logout }), [usuario, cargando, login, logout]);
+  // El backend renueva la cookie (nueva versión de sesión) y devuelve el usuario actualizado
+  const cambiarPassword = useCallback(async (actual, nueva) => {
+    const u = await authService.cambiarPassword(actual, nueva);
+    setUsuario(u);
+    return u;
+  }, []);
+
+  const valor = useMemo(
+    () => ({ usuario, cargando, login, logout, cambiarPassword }),
+    [usuario, cargando, login, logout, cambiarPassword]
+  );
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
 }

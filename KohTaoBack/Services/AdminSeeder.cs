@@ -6,11 +6,11 @@ using KohTaoBack.Options;
 
 namespace KohTaoBack.Services
 {
-    // Crea la cuenta del propietario solo si no existe ningún usuario.
+    // Crea la cuenta del desarrollador (acceso total) solo si no existe ningún usuario.
     // Credenciales desde variables de entorno (AdminSeed__Email / AdminSeed__Password), nunca en código.
     public static class AdminSeeder
     {
-        public const int MinLongitudPassword = 12;
+        public const int MinLongitudPassword = PasswordPolicy.MinLongitud;
 
         public static async Task EjecutarAsync(IServiceProvider services)
         {
@@ -23,7 +23,7 @@ namespace KohTaoBack.Services
 
             if (string.IsNullOrWhiteSpace(seed.Email) || string.IsNullOrWhiteSpace(seed.Password))
             {
-                logger.LogWarning("No hay administrador creado. Define AdminSeed__Email y AdminSeed__Password para crearlo.");
+                logger.LogWarning("No hay usuarios creados. Define AdminSeed__Email y AdminSeed__Password para crearlo.");
                 return;
             }
 
@@ -33,8 +33,8 @@ namespace KohTaoBack.Services
             context.Usuarios.Add(new Usuario
             {
                 Email = seed.Email.Trim().ToLowerInvariant(),
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(seed.Password, workFactor: 12),
-                Rol = Roles.Admin
+                PasswordHash = PasswordPolicy.Hash(seed.Password),
+                Rol = Roles.Desarrollador
             });
             await context.SaveChangesAsync();
             logger.LogInformation("Administrador creado. Elimina ahora AdminSeed__Password de la configuración.");

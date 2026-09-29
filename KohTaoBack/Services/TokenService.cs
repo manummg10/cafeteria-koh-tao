@@ -36,6 +36,7 @@ namespace KohTaoBack.Services
                     new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
                     new Claim("role", usuario.Rol),
+                    new Claim(ClaimsSesion.Version, usuario.VersionSesion.ToString()),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 ]),
                 SigningCredentials = new SigningCredentials(

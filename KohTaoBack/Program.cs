@@ -32,6 +32,8 @@ builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<ITartaEspecialService, TartaEspecialService>();
 builder.Services.AddScoped<IReservaService, ReservaService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddSingleton<IAvisosSeguridad, AvisosSeguridad>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<EmailQueue>();
 builder.Services.AddSingleton<IEmailQueue>(sp => sp.GetRequiredService<EmailQueue>());
@@ -62,13 +64,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             {
                 ctx.Token = ctx.Request.Cookies[jwt.CookieName];
                 return Task.CompletedTask;
-            }
+            },
+            // Sesión revocable: usuario, rol y versión de sesión se comprueban contra la BD
+            OnTokenValidated = SesionValidator.ValidarAsync
         };
     });
 
-// 🛡️ Deny-by-default: cualquier endpoint sin atributo explícito exige rol Admin
+// 🛡️ Autorización por rol. Con contraseña temporal solo se permite /api/auth/* (cambiarla).
+static bool SinPasswordTemporal(AuthorizationHandlerContext c) => !c.User.HasClaim(ClaimsSesion.DebeCambiarPassword, "true");
 builder.Services.AddAuthorizationBuilder()
-    .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireRole(Roles.Admin).Build());
+    .AddPolicy(Politicas.GestionCafeteria, p => p.RequireRole(Roles.Propietario, Roles.Desarrollador).RequireAssertion(SinPasswordTemporal))
+    .AddPolicy(Politicas.GestionUsuarios, p => p.RequireRole(Roles.Desarrollador).RequireAssertion(SinPasswordTemporal))
+    // Deny-by-default: cualquier endpoint sin atributo explícito queda solo para el Desarrollador
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireRole(Roles.Desarrollador).RequireAssertion(SinPasswordTemporal).Build());
 
 // 🚦 Límite de intentos de login por IP (fuerza bruta)
 builder.Services.AddRateLimiter(options =>

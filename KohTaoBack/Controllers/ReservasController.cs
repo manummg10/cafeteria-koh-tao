@@ -9,7 +9,7 @@ namespace KohTaoBack.Controllers
     // Reservas contienen datos personales (nombre, teléfono): solo el administrador.
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Policy = Politicas.GestionCafeteria)]
     public class ReservasController : ControllerBase
     {
         private readonly IReservaService _service;

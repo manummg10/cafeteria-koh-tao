@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using KohTaoBack.DTOs;
+using KohTaoBack.Models;
 using KohTaoBack.Options;
 using KohTaoBack.Services;
+using KohTaoBack.Services.Email;
 
 namespace KohTaoBack.Controllers
 {
@@ -32,8 +34,7 @@ namespace KohTaoBack.Controllers
         [EnableRateLimiting(PoliticaLogin)]
         public async Task<ActionResult<UsuarioSesionDto>> Login(LoginRequest request, CancellationToken ct)
         {
-            var ctx = new ContextoLogin(HttpContext.Connection.RemoteIpAddress?.ToString(), Request.Headers.UserAgent.ToString());
-            var (resultado, usuario) = await _auth.LoginAsync(request.Email, request.Password, ctx, ct);
+            var (resultado, usuario) = await _auth.LoginAsync(request.Email, request.Password, Contexto(), ct);
 
             if (resultado == ResultadoLogin.Bloqueado)
                 return StatusCode(StatusCodes.Status423Locked, new { mensaje = "Cuenta bloqueada temporalmente. Inténtalo más tarde." });
@@ -41,10 +42,26 @@ namespace KohTaoBack.Controllers
             if (resultado != ResultadoLogin.Ok || usuario is null)
                 return Unauthorized(new { mensaje = "Correo o contraseña incorrectos." });
 
-            var (token, expira) = _tokens.Crear(usuario);
-            Response.Cookies.Append(_jwt.CookieName, token, OpcionesCookie(expira));
+            EmitirCookie(usuario);
+            return Ok(new UsuarioSesionDto(usuario.Email, usuario.Rol, usuario.DebeCambiarPassword));
+        }
 
-            return Ok(new UsuarioSesionDto(usuario.Email, usuario.Rol));
+        // POST: api/auth/cambiar-password (cualquier usuario con sesión, también con contraseña temporal)
+        [HttpPost("cambiar-password")]
+        [Authorize]
+        [EnableRateLimiting(PoliticaLogin)]
+        public async Task<ActionResult<UsuarioSesionDto>> CambiarPassword(CambiarPasswordRequest request, CancellationToken ct)
+        {
+            if (!int.TryParse(User.FindFirstValue("sub"), out var id)) return Unauthorized();
+
+            var (resultado, usuario) = await _auth.CambiarPasswordAsync(id, request.PasswordActual, request.PasswordNueva, Contexto(), ct);
+            return resultado switch
+            {
+                ResultadoCambioPassword.Ok when usuario is not null => OkConCookie(usuario),
+                ResultadoCambioPassword.PasswordActualIncorrecta => BadRequest(new { mensaje = "La contraseña actual no es correcta." }),
+                ResultadoCambioPassword.MismaPassword => BadRequest(new { mensaje = "La nueva contraseña debe ser distinta de la actual." }),
+                _ => Unauthorized()
+            };
         }
 
         // POST: api/auth/logout
@@ -59,8 +76,25 @@ namespace KohTaoBack.Controllers
         // GET: api/auth/me (el frontend lo usa para saber si hay sesión, sin tocar el token)
         [HttpGet("me")]
         [Authorize]
-        public ActionResult<UsuarioSesionDto> Me() =>
-            Ok(new UsuarioSesionDto(User.FindFirstValue("email") ?? string.Empty, User.FindFirstValue("role") ?? string.Empty));
+        public ActionResult<UsuarioSesionDto> Me() => Ok(new UsuarioSesionDto(
+            User.FindFirstValue("email") ?? string.Empty,
+            User.FindFirstValue("role") ?? string.Empty,
+            User.HasClaim(ClaimsSesion.DebeCambiarPassword, "true")));
+
+        private ActionResult<UsuarioSesionDto> OkConCookie(Usuario usuario)
+        {
+            EmitirCookie(usuario); // nueva versión de sesión: esta sesión sigue, las demás quedan revocadas
+            return Ok(new UsuarioSesionDto(usuario.Email, usuario.Rol, usuario.DebeCambiarPassword));
+        }
+
+        private void EmitirCookie(Usuario usuario)
+        {
+            var (token, expira) = _tokens.Crear(usuario);
+            Response.Cookies.Append(_jwt.CookieName, token, OpcionesCookie(expira));
+        }
+
+        private ContextoLogin Contexto() =>
+            new(HttpContext.Connection.RemoteIpAddress?.ToString(), Request.Headers.UserAgent.ToString());
 
         private static CookieOptions OpcionesCookie(DateTimeOffset? expira) => new()
         {
