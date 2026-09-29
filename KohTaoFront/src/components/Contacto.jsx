@@ -102,7 +102,9 @@ function Contacto() {
             </h3>
             <p className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed">{NEGOCIO.direccion.calle}</p>
             <p className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed">{NEGOCIO.direccion.cpCiudad}</p>
-            <a href={telefonoHref} className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed hover:text-[#4a3319] w-fit">{NEGOCIO.telefono}</a>
+            {NEGOCIO.telefono && (
+              <a href={telefonoHref} className="text-sm md:text-base text-[#6e6359] font-serif italic leading-relaxed hover:text-[#4a3319] w-fit">{NEGOCIO.telefono}</a>
+            )}
           </div>
 
           <div className="flex flex-col">

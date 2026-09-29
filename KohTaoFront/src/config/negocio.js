@@ -1,25 +1,25 @@
 // 📇 Datos reales de la cafetería: ÚNICA fuente para Contacto, Footer y mapa.
-// ⚠️ PENDIENTE: sustituir por los datos reales confirmados por el propietario.
+// ⚠️ PENDIENTE: teléfono, horario y redes reales (la dirección ya es la real).
 export const NEGOCIO = {
   nombre: 'Koh Tao Café',
   direccion: {
-    calle: 'Calle de la Dulzura, Nº 14',
-    cpCiudad: '25002 Lleida',
+    calle: 'C/ Océano Atlántico, 15',
+    cpCiudad: '04700 El Ejido, Almería',
   },
-  telefono: '+34 973 00 00 00',
+  telefono: null, // p. ej. '+34 950 00 00 00' (null = no se muestra)
   horario: [
     { dias: 'Lunes a Viernes', horas: '8:00h - 13:00h | 16:30h - 20:30h' },
     { dias: 'Sábados y Domingos', horas: '9:00h - 14:00h | 17:00h - 21:00h' },
   ],
   redes: {
-    instagram: 'https://instagram.com',
-    facebook: 'https://facebook.com',
+    instagram: null, // URL real del perfil (null = no se muestra)
+    facebook: null,
   },
 };
 
 export const direccionCompleta = `${NEGOCIO.direccion.calle}, ${NEGOCIO.direccion.cpCiudad}`;
 
-// Google Maps embebido sin API key (búsqueda por dirección)
-export const mapaEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(`${NEGOCIO.nombre}, ${direccionCompleta}`)}&output=embed`;
+// Google Maps embebido sin API key. Solo la dirección: con "Koh Tao" Google podría mostrar la isla de Tailandia
+export const mapaEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(direccionCompleta)}&output=embed`;
 export const mapaComoLlegarUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(direccionCompleta)}`;
-export const telefonoHref = `tel:${NEGOCIO.telefono.replace(/\s/g, '')}`;
+export const telefonoHref = NEGOCIO.telefono ? `tel:${NEGOCIO.telefono.replace(/\s/g, '')}` : null;

@@ -1,6 +1,11 @@
 import { Coffee, MapPin, Phone, Clock, Share2, Globe } from 'lucide-react';
 import { NEGOCIO, direccionCompleta, mapaComoLlegarUrl, telefonoHref } from '../config/negocio';
 
+const redes = [
+  { url: NEGOCIO.redes.instagram, titulo: 'Instagram', Icono: Globe },
+  { url: NEGOCIO.redes.facebook, titulo: 'Facebook', Icono: Share2 },
+].filter(r => r.url);
+
 function Footer() {
   const anioActual = new Date().getFullYear();
 
@@ -35,40 +40,42 @@ function Footer() {
             <MapPin size={16} className="text-[#d4b285] shrink-0" />
             <span>{direccionCompleta}</span>
           </a>
-          <a href={telefonoHref} className="flex items-center gap-2 text-sm font-serif italic text-[#e6dfd5]/90 hover:text-[#d4b285]">
-            <Phone size={16} className="text-[#d4b285] shrink-0" />
-            <span>{NEGOCIO.telefono}</span>
-          </a>
+          {NEGOCIO.telefono && (
+            <a href={telefonoHref} className="flex items-center gap-2 text-sm font-serif italic text-[#e6dfd5]/90 hover:text-[#d4b285]">
+              <Phone size={16} className="text-[#d4b285] shrink-0" />
+              <span>{NEGOCIO.telefono}</span>
+            </a>
+          )}
         </div>
 
-        {/* Columna 3: Redes Sociales */}
+        {/* Columna 3: Redes Sociales (solo las configuradas) o, si no hay, cómo llegar */}
         <div className="flex flex-col gap-4 text-center md:text-left items-center md:items-start">
           <h4 className="font-sans font-semibold text-white uppercase tracking-widest text-xs mb-2 border-b border-[#d4b285]/20 pb-1.5 w-fit">
-            Síguenos
+            {redes.length > 0 ? 'Síguenos' : 'Visítanos'}
           </h4>
           <p className="text-sm font-serif italic text-[#e6dfd5]/80 leading-relaxed">
-            No te pierdas nuestras novedades diarias y tartas especiales.
+            {redes.length > 0 ? 'No te pierdas nuestras novedades diarias y tartas especiales.' : 'Te esperamos con el mejor café y tartas recién hechas.'}
           </p>
-          <div className="flex gap-4">
-            <a 
-              href={NEGOCIO.redes.instagram} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="bg-white/10 hover:bg-[#d4b285] hover:text-[#4a3319] p-2.5 rounded-full transition-all duration-300 flex items-center justify-center"
-              title="Instagram"
-            >
-              <Globe size={18} />
+          {redes.length > 0 ? (
+            <div className="flex gap-4">
+              {redes.map(({ url, titulo, Icono }) => (
+                <a
+                  key={titulo}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white/10 hover:bg-[#d4b285] hover:text-[#4a3319] p-2.5 rounded-full transition-all duration-300 flex items-center justify-center"
+                  title={titulo}
+                >
+                  <Icono size={18} />
+                </a>
+              ))}
+            </div>
+          ) : (
+            <a href={mapaComoLlegarUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold uppercase tracking-widest text-[#d4b285] hover:text-white">
+              📍 Cómo llegar
             </a>
-            <a 
-              href={NEGOCIO.redes.facebook} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="bg-white/10 hover:bg-[#d4b285] hover:text-[#4a3319] p-2.5 rounded-full transition-all duration-300 flex items-center justify-center"
-              title="Facebook"
-            >
-              <Share2 size={18} />
-            </a>
-          </div>
+          )}
         </div>
 
       </div>
