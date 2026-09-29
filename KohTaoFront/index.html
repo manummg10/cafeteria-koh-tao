@@ -13,7 +13,7 @@
   <body>
     <div id="root"></div>
     <!-- Declaración para Netlify Forms (detección en el despliegue). El formulario visible lo pinta React. -->
-    <form name="contacto" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <form name="contacto" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
       <input type="text" name="nombre" />
       <input type="email" name="email" />
       <textarea name="mensaje"></textarea>
