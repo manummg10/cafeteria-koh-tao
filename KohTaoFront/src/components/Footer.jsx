@@ -1,10 +1,31 @@
-import { Coffee, MapPin, Phone, Clock, Share2, Globe } from 'lucide-react';
+import { Coffee, MapPin, Phone, Clock } from 'lucide-react';
+import { FaInstagram, FaFacebookF } from 'react-icons/fa';
 import { NEGOCIO, direccionCompleta, mapaComoLlegarUrl, telefonoHref } from '../config/negocio';
+import { DESARROLLADOR } from '../config/desarrollador';
 
-const redes = [
-  { url: NEGOCIO.redes.instagram, titulo: 'Instagram', Icono: Globe },
-  { url: NEGOCIO.redes.facebook, titulo: 'Facebook', Icono: Share2 },
-].filter(r => r.url);
+// Siempre se muestran; sin URL real aún, el icono no es enlace y avisa "Próximamente"
+const REDES = [
+  { url: NEGOCIO.redes.instagram, titulo: 'Instagram', Icono: FaInstagram },
+  { url: NEGOCIO.redes.facebook, titulo: 'Facebook', Icono: FaFacebookF },
+];
+
+const claseIconoRed = 'bg-white/10 p-2.5 rounded-full transition-all duration-300 flex items-center justify-center';
+
+function CreditoDesarrollador() {
+  const contenido = (
+    <>
+      <img src={DESARROLLADOR.logo} alt="" width="16" height="16" className="w-4 h-4 rounded-full" loading="lazy" />
+      <span>Web desarrollada por {DESARROLLADOR.nombre}</span>
+    </>
+  );
+  const clase = 'flex items-center gap-1.5 normal-case tracking-wide opacity-60 hover:opacity-100 transition-opacity';
+
+  return DESARROLLADOR.url ? (
+    <a href={DESARROLLADOR.url} target="_blank" rel="noopener" className={clase}>{contenido}</a>
+  ) : (
+    <span className={clase}>{contenido}</span>
+  );
+}
 
 function Footer() {
   const anioActual = new Date().getFullYear();
@@ -48,41 +69,37 @@ function Footer() {
           )}
         </div>
 
-        {/* Columna 3: Redes Sociales (solo las configuradas) o, si no hay, cómo llegar */}
+        {/* Columna 3: Redes Sociales */}
         <div className="flex flex-col gap-4 text-center md:text-left items-center md:items-start">
           <h4 className="font-sans font-semibold text-white uppercase tracking-widest text-xs mb-2 border-b border-[#d4b285]/20 pb-1.5 w-fit">
-            {redes.length > 0 ? 'Síguenos' : 'Visítanos'}
+            Síguenos
           </h4>
           <p className="text-sm font-serif italic text-[#e6dfd5]/80 leading-relaxed">
-            {redes.length > 0 ? 'No te pierdas nuestras novedades diarias y tartas especiales.' : 'Te esperamos con el mejor café y tartas recién hechas.'}
+            No te pierdas nuestras novedades diarias y tartas especiales.
           </p>
-          {redes.length > 0 ? (
-            <div className="flex gap-4">
-              {redes.map(({ url, titulo, Icono }) => (
-                <a
-                  key={titulo}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white/10 hover:bg-[#d4b285] hover:text-[#4a3319] p-2.5 rounded-full transition-all duration-300 flex items-center justify-center"
-                  title={titulo}
-                >
-                  <Icono size={18} />
-                </a>
-              ))}
-            </div>
-          ) : (
-            <a href={mapaComoLlegarUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold uppercase tracking-widest text-[#d4b285] hover:text-white">
-              📍 Cómo llegar
-            </a>
-          )}
+          <div className="flex gap-4">
+            {REDES.map(({ url, titulo, Icono }) => (url ? (
+              <a key={titulo} href={url} target="_blank" rel="noopener noreferrer" title={titulo} aria-label={titulo}
+                className={`${claseIconoRed} hover:bg-[#d4b285] hover:text-[#4a3319]`}>
+                <Icono size={18} />
+              </a>
+            ) : (
+              <span key={titulo} title={`${titulo} (próximamente)`} aria-label={`${titulo}, próximamente`}
+                className={`${claseIconoRed} opacity-60 cursor-default`}>
+                <Icono size={18} />
+              </span>
+            )))}
+          </div>
         </div>
 
       </div>
 
       {/* Barra inferior de Copyright */}
-      <div className="bg-[#362410] py-4 text-center text-[10px] font-sans uppercase tracking-[0.15em] text-[#d4b285]/50 border-t border-black/10">
-        <p>&copy; {anioActual} {NEGOCIO.nombre}. Todos los derechos reservados.</p>
+      <div className="bg-[#362410] border-t border-black/10 text-[10px] font-sans text-[#d4b285]/50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="uppercase tracking-[0.15em] text-center">&copy; {anioActual} {NEGOCIO.nombre}. Todos los derechos reservados.</p>
+          <CreditoDesarrollador />
+        </div>
       </div>
     </footer>
   );
