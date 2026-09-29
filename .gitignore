@@ -1,23 +1,11 @@
-# .NET build
-**/bin/
-**/obj/
-.vs/
-*.user
-*.suo
-
 # Node
 **/node_modules/
 **/dist/
-
-# Frontend build copiado al backend
-KohTaoBack/wwwroot/
 
 # Secretos y configuración local
 .env
 .env.*
 !.env.example
-**/appsettings.*.local.json
-**/secrets.json
 
 # Copias locales de la BD
 backups/

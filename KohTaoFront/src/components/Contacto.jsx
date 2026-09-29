@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { NEGOCIO, mapaEmbedUrl, mapaComoLlegarUrl, telefonoHref } from '../config/negocio';
 
+const FORMULARIO_VACIO = { nombre: '', email: '', mensaje: '' };
+
+// Envío con Netlify Forms (sin servidor propio). El formulario "contacto" se declara también
+// en index.html para que Netlify lo detecte al desplegar. "bot-field" es un honeypot anti-spam.
 function Contacto() {
-  const [formData, setFormData] = useState({
-    nombre: '',
-    email: '',
-    mensaje: ''
-  });
+  const [formData, setFormData] = useState(FORMULARIO_VACIO);
+  const [trampa, setTrampa] = useState('');
+  const [estado, setEstado] = useState('inactivo'); // inactivo | enviando | ok | error
 
   const handleChange = (e) => {
     setFormData({
@@ -15,10 +17,21 @@ function Contacto() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Datos listos para enviar al backend:", formData);
-    alert("¡Simulación de envío! Cuando tengamos Node.js listo, esto enviará el correo al administrador y la confirmación al usuario.");
+    setEstado('enviando');
+    try {
+      const respuesta = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ 'form-name': 'contacto', 'bot-field': trampa, ...formData }).toString(),
+      });
+      if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
+      setFormData(FORMULARIO_VACIO);
+      setEstado('ok');
+    } catch {
+      setEstado('error');
+    }
   };
 
   return (
@@ -36,7 +49,11 @@ function Contacto() {
           </h2>
           <div className="w-12 h-[1px] bg-[#8c7662]/40 mt-4 mb-9"></div>
           
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <form name="contacto" onSubmit={handleSubmit} className="flex flex-col gap-5">
+            {/* Honeypot: invisible para personas; si un bot lo rellena, Netlify descarta el mensaje */}
+            <p className="hidden" aria-hidden="true">
+              <label>No rellenar: <input name="bot-field" tabIndex={-1} autoComplete="off" value={trampa} onChange={e => setTrampa(e.target.value)} /></label>
+            </p>
             <div className="flex flex-col gap-2">
               <label htmlFor="nombre" className="text-xs font-semibold text-[#51443a] uppercase tracking-widest font-sans">
                 Nombre
@@ -85,12 +102,20 @@ function Contacto() {
               ></textarea>
             </div>
             
-            <button 
-              type="submit" 
-              className="bg-[#2c2520] text-white py-3.5 px-8 text-xs font-semibold rounded uppercase tracking-widest font-sans transition-all duration-300 hover:bg-[#453931] hover:-translate-y-0.5 active:translate-y-0 self-start mt-2 shadow-sm cursor-pointer"
+            <button
+              type="submit"
+              disabled={estado === 'enviando'}
+              className="bg-[#2c2520] text-white py-3.5 px-8 text-xs font-semibold rounded uppercase tracking-widest font-sans transition-all duration-300 hover:bg-[#453931] hover:-translate-y-0.5 active:translate-y-0 self-start mt-2 shadow-sm cursor-pointer disabled:opacity-60"
             >
-              Enviar Mensaje
+              {estado === 'enviando' ? 'Enviando...' : 'Enviar Mensaje'}
             </button>
+
+            {estado === 'ok' && (
+              <p role="status" className="text-sm font-serif italic text-green-800">¡Gracias! Hemos recibido tu mensaje y te responderemos pronto.</p>
+            )}
+            {estado === 'error' && (
+              <p role="alert" className="text-sm font-serif italic text-red-700">No se pudo enviar el mensaje. Inténtalo de nuevo en unos minutos.</p>
+            )}
           </form>
         </div>
 

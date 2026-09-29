@@ -1,27 +1,10 @@
 import { useState } from 'react';
-import { useApiResource } from '../hooks/useApiResource';
+import { CARTA, CATEGORIAS_CARTA } from '../config/contenido';
+import { formatearPrecio } from '../config/formato';
 
 function MenuPreview() {
-  const { items: productos, cargando: loading } = useApiResource('/api/productos');
-  const [categoriaActiva, setCategoriaActiva] = useState('Cafés');
-
-  const mapearCategoria = (tab) => {
-    if (tab === 'Tartas') return 'Dulces';
-    if (tab === 'Salado') return 'Otros';
-    return 'Cafés';
-  };
-
-  const productosFiltrados = productos.filter(
-    p => p.categoria === mapearCategoria(categoriaActiva)
-  );
-
-  if (loading) {
-    return (
-      <div className="text-center py-16 font-serif italic text-sm text-[#7d7065] bg-[#f6f1eb] tracking-wide">
-        Cargando deliciosa carta...
-      </div>
-    );
-  }
+  const [categoriaActiva, setCategoriaActiva] = useState(CATEGORIAS_CARTA[0].id);
+  const productosFiltrados = CARTA.filter(p => p.categoria === categoriaActiva);
 
   return (
     <section id="Nuestra Carta"
@@ -41,13 +24,10 @@ function MenuPreview() {
 
         {/* 📱 PESTAÑAS DE FILTRO */}
         <div className="flex flex-wrap justify-center gap-4 mb-12">
-          {[
-            { id: 'Cafés', label: 'Cafés', emoji: '☕' },
-            { id: 'Tartas', label: 'Tartas', emoji: '🍰' },
-            { id: 'Salado', label: 'Salado', emoji: '🥪' }
-          ].map(tab => (
+          {CATEGORIAS_CARTA.map(tab => (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setCategoriaActiva(tab.id)}
               className={`flex items-center gap-2 py-2.5 px-6 rounded-full text-xs font-semibold font-sans uppercase tracking-widest border shadow-sm transition-all duration-300 ${
                 categoriaActiva === tab.id 
@@ -56,7 +36,7 @@ function MenuPreview() {
               }`}
             >
               <span className="text-sm">{tab.emoji}</span>
-              <span>{tab.label}</span>
+              <span>{tab.etiqueta}</span>
             </button>
           ))}
         </div>
@@ -77,13 +57,15 @@ function MenuPreview() {
                       {producto.nombre}
                     </span>
 
-                    {/* Línea de puntos dinámica que rellena el espacio */}
-                    <div className="flex-grow border-b border-dotted border-[#c3b7ac] mx-3 relative -top-1.5"></div>
-
-                    {/* Precio */}
-                    <span className="text-sm md:text-base font-semibold font-sans text-[#2c2520] bg-[#f6f1eb] z-10 pl-2">
-                      {producto.precio.toFixed(2)}€
-                    </span>
+                    {/* Línea de puntos + precio (solo si hay precio) */}
+                    {producto.precio != null && (
+                      <>
+                        <div className="flex-grow border-b border-dotted border-[#c3b7ac] mx-3 relative -top-1.5"></div>
+                        <span className="text-sm md:text-base font-semibold font-sans text-[#2c2520] bg-[#f6f1eb] z-10 pl-2">
+                          {formatearPrecio(producto.precio)}
+                        </span>
+                      </>
+                    )}
                   </div>
 
                   {/* Descripción / Ingredientes (Solo si tiene datos) */}

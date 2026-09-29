@@ -1,82 +1,39 @@
-# Koh Tao · Desarrollo y despliegue
+# Koh Tao Café · Web
 
-## Arquitectura
+Web pública de una sola página (React + Vite + Tailwind), publicada en **Netlify**: https://cafeteriakohtao.netlify.app
 
-- **Web pública** (`/`): carta y tartas especiales. Cualquiera puede verla.
-- **Login del panel** (ruta interna sin enlaces desde la web: `VITE_RUTA_PANEL` en Netlify, por defecto `/panel-control-interno`): correo y contraseña. Cada acceso correcto envía un email de aviso (fecha, IP, navegador). Tras 5 intentos fallidos la cuenta se bloquea 15 minutos y también se avisa por email.
-- **Panel** (`<ruta>/dashboard`): carta, tartas y encargos. Perfiles: **Desarrollador** (todo + gestión de usuarios) y **Propietario** (carta, tartas y encargos). El backend aplica los permisos en cada endpoint.
-- **Sesión**: JWT en una cookie `HttpOnly` + `Secure` + `SameSite=Strict`. El JavaScript nunca tiene acceso al token.
-- **Producción** (igual que TAI Oposicion App): frontend en **Netlify**, que reenvía `/api/*` al backend en **Render** (Docker). Base de datos MySQL en **Aiven** con SSL. Web y API comparten dominio, así que no hace falta CORS.
+No hay servidor ni base de datos: todo el contenido está en el código y se publica con `git push` a `main`.
+
+> La versión con panel interno (login, carta editable, encargos y usuarios, con backend .NET en Render y MySQL en Aiven) está guardada en la rama **`panel-interno`**.
+
+## Editar el contenido
+
+| Qué | Dónde |
+|---|---|
+| Especiales (tartas del día) y carta con precios | `KohTaoFront/src/config/contenido.js` |
+| Dirección, teléfono, horario y redes sociales | `KohTaoFront/src/config/negocio.js` |
+| Firma del desarrollador y enlace a su web | `KohTaoFront/src/config/desarrollador.js` |
+| Fotos | `KohTaoFront/public/images/` (webp o jpg de unos 800 px) |
+
+Los datos de `contenido.js` son **ejemplos** hasta que la dueña facilite la carta, los precios y las fotos reales.
 
 ## Desarrollo local
 
-### 1. Secretos (User Secrets, fuera del repositorio)
-
-La clave JWT y la conexión ya están configuradas en este equipo. Faltan la cuenta del propietario y, opcionalmente, el SMTP:
-
 ```bash
-cd KohTaoBack
-dotnet user-secrets set "AdminSeed:Email" "propietario@correo.com"
-dotnet user-secrets set "AdminSeed:Password" "una-contraseña-de-12+-caracteres"
-# Opcional, para recibir los emails de aviso:
-dotnet user-secrets set "Smtp:Host" "smtp.gmail.com"
-dotnet user-secrets set "Smtp:Usuario" "cuenta@gmail.com"
-dotnet user-secrets set "Smtp:Password" "contraseña-de-aplicación"
-dotnet user-secrets set "Smtp:Remitente" "cuenta@gmail.com"
+cd KohTaoFront
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # comprueba que compila antes de publicar
 ```
 
-Si tu servidor local es **MariaDB** (XAMPP), indica la versión: `dotnet user-secrets set "Database:ServerVersion" "10.4.32-mariadb"`.
+## Publicar
 
-### 2. Base de datos (migraciones)
+`git push` a `main` → Netlify compila y publica en 1-2 minutos (`netlify.toml` ya define la carpeta, el build y las cabeceras de seguridad).
 
-**Si ya tienes la BD `kohtao_db` con datos** (creada a mano), primero márcala como "baseline" para no perder datos. Ejecuta esto una sola vez en HeidiSQL:
+## Formulario "Escríbenos" (Netlify Forms)
 
-```sql
-CREATE TABLE IF NOT EXISTS `__EFMigrationsHistory` (
-  `MigrationId` varchar(150) NOT NULL,
-  `ProductVersion` varchar(32) NOT NULL,
-  PRIMARY KEY (`MigrationId`)
-);
-INSERT INTO `__EFMigrationsHistory` VALUES ('20260929075215_Baseline', '9.0.20');
-```
+Los mensajes llegan a Netlify sin servidor propio (plan gratuito: 100 al mes).
+1. En Netlify, ve a **Site configuration → Forms → Enable form detection** (una sola vez) y vuelve a desplegar.
+2. En **Forms → Form notifications**, añade una notificación por email para recibir cada mensaje en el correo de la cafetería.
 
-Después, tanto para una BD existente como para una nueva:
-
-```bash
-dotnet ef database update
-```
-
-Cualquier cambio futuro de esquema: `dotnet ef migrations add NombreDelCambio` y después `dotnet ef database update`. Nunca a mano.
-
-### 3. Arrancar
-
-```bash
-cd KohTaoBack && dotnet run --launch-profile http    # API en http://localhost:5041
-cd KohTaoFront && npm run dev                        # Web en http://localhost:5173 (proxy /api → 5041)
-```
-
-## Producción (Netlify + Render + Aiven)
-
-### 1. Base de datos en Aiven
-En tu servicio MySQL de Aiven (puede ser el mismo que usa TAI), crea una base de datos nueva, `kohtao_db`, y copia el host, el puerto, el usuario y la contraseña.
-
-### 2. Backend en Render
-Render → **New → Blueprint** → repositorio `cafeteria-koh-tao`. Render lee `render.yaml` y te pide:
-- `ConnectionStrings__DefaultConnection`: `Server=<host>;Port=<puerto>;Database=kohtao_db;User=avnadmin;Password=<pass>;SslMode=Required`
-- `AdminSeed__Password`: la contraseña del propietario (12 caracteres o más).
-- `Smtp__Password`: tu API key de Resend.
-
-En el primer arranque se aplican las migraciones y se crea la cuenta `manummg10@gmail.com`. **Después borra `AdminSeed__Password`** en Render (Environment).
-La clave JWT la genera Render automáticamente.
-
-Si el servicio no se llama `kohtao-api`, cambia la URL en `netlify.toml`.
-
-### 3. Frontend en Netlify
-Netlify → **Add new site → Import from GitHub** → el mismo repositorio. `netlify.toml` ya define la carpeta, el build, el proxy de `/api` y las rutas de React.
-
-### 4. Datos iniciales
-Importa `backups/datos_para_produccion.sql` en la base de datos de Aiven con HeidiSQL (Archivo → Ejecutar SQL). Contiene la carta, las tartas y las reservas actuales, y está fuera de git.
-
-### Notas
-- En el plan gratuito, Render se duerme cuando no hay tráfico: la primera petición tarda entre 30 y 50 segundos.
-- Mientras Resend use el remitente de pruebas `onboarding@resend.dev`, solo envía al correo con el que registraste la cuenta. Para enviar desde tu dominio, verifícalo en Resend y cambia `Smtp__Remitente`.
+El campo oculto `bot-field` descarta el spam de bots.
