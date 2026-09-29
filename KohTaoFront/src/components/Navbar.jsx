@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CakeSlice, Menu, ShieldAlert } from 'lucide-react';
+import { CakeSlice, Menu } from 'lucide-react';
 
 // Única lista de secciones para el menú de escritorio y el móvil
 const SECCIONES = [
@@ -16,7 +15,6 @@ const DURACION_MENU_MS = 300; // debe coincidir con duration-300 del menú móvi
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const navRef = useRef(null);
-  const navigate = useNavigate();
 
   // Scroll suave descontando la barra fija. En móvil esperamos a que el menú se pliegue:
   // si no, la altura del nav cambia durante el scroll y se acaba a mitad de sección.
@@ -59,18 +57,6 @@ function Navbar() {
           ))}
         </ul>
 
-        {/* 🔐 BOTÓN ADMIN (ESCRITORIO) */}
-        <div className="hidden md:block">
-          <button
-            type="button"
-            onClick={() => navigate('/admin')}
-            className="flex items-center gap-1.5 border border-[#4a3319] text-[#4a3319] px-3 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-widest hover:bg-[#4a3319] hover:text-white active:scale-95 transition-all cursor-pointer"
-          >
-            <ShieldAlert size={14} />
-            Admin
-          </button>
-        </div>
-
         {/* 🍰 BOTÓN MENÚ MÓVIL (DE RAYAS A PORCIÓN DE TARTA) */}
         <div className="flex md:hidden items-center">
           <button
@@ -100,17 +86,6 @@ function Navbar() {
               </button>
             </li>
           ))}
-          {/* Separador e item de Admin en móvil */}
-          <li className="border-t border-gray-100 pt-2 mt-1">
-            <button
-              type="button"
-              onClick={() => navigate('/admin')}
-              className="w-full flex items-center justify-center gap-2 p-2.5 rounded-lg bg-[#594636] text-white hover:bg-[#4a3319] transition-colors text-[11px] font-semibold uppercase tracking-widest"
-            >
-              <ShieldAlert size={14} />
-              Acceso Admin
-            </button>
-          </li>
         </ul>
       </div>
     </nav>

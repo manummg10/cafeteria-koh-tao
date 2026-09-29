@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../hooks/useAuth';
+import { RUTA_PANEL } from '../config/rutas';
 
 // Solo controla la navegación: la protección real la hace el backend en cada endpoint.
 function PrivateRoute({ children }) {
@@ -11,7 +12,7 @@ function PrivateRoute({ children }) {
   }
 
   if (!usuario) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to={RUTA_PANEL} replace />;
   }
 
   return children;

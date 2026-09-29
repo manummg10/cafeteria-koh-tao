@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { RUTA_PANEL_DASHBOARD } from '../../config/rutas';
 
 const MENSAJES_ERROR = {
   401: 'Correo o contraseña incorrectos.',
@@ -15,7 +16,7 @@ function AdminLogin() {
   const { usuario, login } = useAuth();
   const navigate = useNavigate();
 
-  if (usuario) return <Navigate to="/admin/dashboard" replace />;
+  if (usuario) return <Navigate to={RUTA_PANEL_DASHBOARD} replace />;
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -28,7 +29,7 @@ function AdminLogin() {
     try {
       // El backend responde con una cookie HttpOnly: el token nunca pasa por JS
       await login(credentials.email, credentials.password);
-      navigate('/admin/dashboard', { replace: true });
+      navigate(RUTA_PANEL_DASHBOARD, { replace: true });
     } catch (err) {
       setError(MENSAJES_ERROR[err.response?.status] ?? 'No se pudo conectar con el servidor.');
       setCredentials(c => ({ ...c, password: '' }));

@@ -1,5 +1,6 @@
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import AuthProvider from './context/AuthProvider';
+import { RUTA_PANEL, RUTA_PANEL_DASHBOARD } from './config/rutas';
 
 // Importamos los componentes de la Landing pública
 import Navbar from './components/Navbar';
@@ -43,14 +44,14 @@ function App() {
       {/* Ruta principal: Muestra la cafetería Koh Tao al público */}
       <Route path="/" element={<PublicLanding />} />
       
-      {/* Zona de administración: la sesión solo se consulta aquí, no en la web pública */}
+      {/* Zona interna (sin enlaces desde la web): la sesión solo se consulta aquí */}
       <Route element={<AuthProvider><Outlet /></AuthProvider>}>
-        {/* Login del propietario (Limpio, sin footer) */}
-        <Route path="/admin" element={<AdminLogin />} />
+        {/* Login del panel (Limpio, sin footer) */}
+        <Route path={RUTA_PANEL} element={<AdminLogin />} />
 
         {/* 🔒 Panel de gestión: el backend valida la cookie en cada petición */}
         <Route
-          path="/admin/dashboard"
+          path={RUTA_PANEL_DASHBOARD}
           element={
             <PrivateRoute>
               <AdminDashboard />
@@ -58,6 +59,9 @@ function App() {
           }
         />
       </Route>
+
+      {/* Cualquier otra ruta (incluida /admin) vuelve a la web pública */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

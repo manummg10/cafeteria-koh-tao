@@ -3,8 +3,8 @@
 ## Arquitectura
 
 - **Web pública** (`/`): carta y tartas especiales. Cualquiera puede verla.
-- **Login del propietario** (`/admin`): correo y contraseña. Cada acceso correcto envía un email de aviso (fecha, IP, navegador). Tras 5 intentos fallidos la cuenta se bloquea 15 minutos y también se avisa por email.
-- **Panel** (`/admin/dashboard`): carta, tartas y reservas. El backend exige el rol `Admin` en todas las operaciones de escritura y en las reservas.
+- **Login del panel** (ruta interna sin enlaces desde la web: `VITE_RUTA_PANEL` en Netlify, por defecto `/panel-control-interno`): correo y contraseña. Cada acceso correcto envía un email de aviso (fecha, IP, navegador). Tras 5 intentos fallidos la cuenta se bloquea 15 minutos y también se avisa por email.
+- **Panel** (`<ruta>/dashboard`): carta, tartas y reservas. El backend exige el rol `Admin` en todas las operaciones de escritura y en las reservas.
 - **Sesión**: JWT en una cookie `HttpOnly` + `Secure` + `SameSite=Strict`. El JavaScript nunca tiene acceso al token.
 - **Producción** (igual que TAI Oposicion App): frontend en **Netlify**, que reenvía `/api/*` al backend en **Render** (Docker). Base de datos MySQL en **Aiven** con SSL. Web y API comparten dominio, así que no hace falta CORS.
 

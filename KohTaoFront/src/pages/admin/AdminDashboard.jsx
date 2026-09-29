@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LayoutGrid, Image, Calendar, UserCog, Users } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { RUTA_PANEL } from '../../config/rutas';
 import { useApiResource } from '../../hooks/useApiResource';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import CartaSection from '../../components/admin/CartaSection';
@@ -35,7 +36,7 @@ function AdminDashboard() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/admin', { replace: true });
+    navigate(RUTA_PANEL, { replace: true });
   };
 
   return (
