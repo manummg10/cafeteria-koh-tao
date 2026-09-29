@@ -1,5 +1,5 @@
 // 📇 Datos reales de la cafetería: ÚNICA fuente para Contacto, Footer y mapa.
-// ⚠️ PENDIENTE: teléfono, horario y redes reales (la dirección ya es la real).
+// ⚠️ PENDIENTE: teléfono, horario y perfiles reales de redes (la dirección ya es la real).
 export const NEGOCIO = {
   nombre: 'Koh Tao Café',
   direccion: {
@@ -12,8 +12,8 @@ export const NEGOCIO = {
     { dias: 'Sábados y Domingos', horas: '9:00h - 14:00h | 17:00h - 21:00h' },
   ],
   redes: {
-    instagram: null, // URL real del perfil (null = no se muestra)
-    facebook: null,
+    instagram: 'https://www.instagram.com', // TODO: URL del perfil real cuando exista
+    facebook: 'https://www.facebook.com', // TODO: URL de la página real cuando exista
   },
 };
 
