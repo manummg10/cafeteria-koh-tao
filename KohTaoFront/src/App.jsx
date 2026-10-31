@@ -6,12 +6,19 @@ import MenuPreview from './components/MenuPreview';
 import SobreNosotros from './components/SobreNosotros';
 import Contacto from './components/Contacto';
 import Footer from './components/Footer';
+import AvisoEmpleo from './components/AvisoEmpleo';
+import TrabajaConNosotros from './pages/TrabajaConNosotros';
+import { MODO_PREAPERTURA } from './config/negocio';
 
 // Web de una sola página (sin panel interno: el contenido está en src/config/contenido.js)
 function App() {
+  // En obras: la portada es la oferta de empleo con el vídeo de cabecera
+  if (MODO_PREAPERTURA) return <TrabajaConNosotros />;
+
   return (
     // Estructura Flexbox para que el footer nunca flote a mitad de página
     <div className="flex flex-col min-h-screen bg-[#fdfbf7]">
+      <AvisoEmpleo />
       <Navbar />
       <main className="flex-grow">
         <HeroSection />

@@ -1,6 +1,6 @@
 import 'react';
 
-function HeroSection() {
+function HeroSection({ textoBoton = 'Descubrir la experiencia' }) {
   const handleScroll = () => {
     window.scrollTo({
       top: window.innerHeight,
@@ -56,7 +56,7 @@ function HeroSection() {
           className="bg-white text-[#2c2520] border-none py-3.5 px-8 text-xs font-semibold rounded uppercase tracking-widest font-sans transition-all duration-300 hover:bg-[#2c2520] hover:text-white hover:-translate-y-1 shadow-md cursor-pointer"
           onClick={handleScroll}
         >
-          Descubrir la experiencia
+          {textoBoton}
         </button>
       </div>
       

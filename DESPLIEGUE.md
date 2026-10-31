@@ -38,6 +38,18 @@ Los mensajes llegan a Netlify sin servidor propio (plan gratuito: 100 al mes).
 
 El campo oculto `bot-field` descarta el spam de bots.
 
+## Modo pre-apertura (local en obras)
+
+Con `MODO_PREAPERTURA = true` en `KohTaoFront/src/config/negocio.js`, la web entera es solo el vídeo de cabecera + la oferta de empleo + el pie (sin horario). Al compartir el enlace principal se ve el cartel de empleo.
+**Al abrir el local:** ponerlo en `false` y hacer `git push` → vuelve la web completa con la carta, sobre nosotros y contacto, más una franja que enlaza a la oferta mientras `EMPLEO.activa` sea `true`.
+
+## Trabaja con nosotros (oferta de empleo)
+
+Página propia para compartir por WhatsApp/Instagram: **https://cafeteriakohtao.netlify.app/trabaja-con-nosotros/** (atajos: `/empleo` y `/trabajo`).
+- Textos, puesto, correo y fecha: `KohTaoFront/src/config/empleo.js`. Para cerrar la oferta, `activa: false` (se quita el aviso de la portada).
+- El botón **Envíanos tu CV** abre la app de correo del propio dispositivo con destinatario, asunto y un texto base ya escritos; el candidato adjunta el CV y lo envía directo a `kohtaocafeelejido@gmail.com`. No pasa por Netlify ni requiere configuración.
+- Vista previa al compartir: `public/empleo-cartel.jpg` (el cartel). Incluye datos `JobPosting` para Google Empleos.
+
 ## SEO (buscadores y vista previa al compartir)
 
 Se genera solo en cada build con `KohTaoFront/seo/vitePluginSeo.js`, a partir de `src/config/negocio.js` (bloques `NEGOCIO` y `SEO`):

@@ -1,6 +1,6 @@
 import { Coffee, MapPin, Phone, Clock } from 'lucide-react';
 import { FaInstagram, FaFacebookF } from 'react-icons/fa';
-import { NEGOCIO, direccionCompleta, mapaComoLlegarUrl, telefonoHref } from '../config/negocio';
+import { NEGOCIO, MODO_PREAPERTURA, direccionCompleta, mapaComoLlegarUrl, telefonoHref } from '../config/negocio';
 import { DESARROLLADOR } from '../config/desarrollador';
 
 // Siempre se muestran; sin URL real aún, el icono no es enlace y avisa "Próximamente"
@@ -49,9 +49,10 @@ function Footer() {
         {/* Columna 2: Horario y Contacto */}
         <div className="flex flex-col gap-3 text-center md:text-left items-center md:items-start">
           <h4 className="font-sans font-semibold text-white uppercase tracking-widest text-xs mb-2 border-b border-[#d4b285]/20 pb-1.5 w-fit">
-            Contacto y Horario
+            {MODO_PREAPERTURA ? 'Dónde estaremos' : 'Contacto y Horario'}
           </h4>
-          {NEGOCIO.horario.map(({ dias, horas }) => (
+          {/* En obras no se muestra horario: aún no es el real */}
+          {!MODO_PREAPERTURA && NEGOCIO.horario.map(({ dias, horas }) => (
             <div key={dias} className="flex items-center gap-2 text-sm font-serif italic text-[#e6dfd5]/90">
               <Clock size={16} className="text-[#d4b285] shrink-0" />
               <span>{dias}: {horas}</span>

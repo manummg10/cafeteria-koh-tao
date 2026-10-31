@@ -3,6 +3,17 @@
   command = "npm run build"
   publish = "dist"
 
+# Enlaces cortos a la oferta de empleo (deben ir antes de la regla general)
+[[redirects]]
+  from = "/empleo"
+  to = "/trabaja-con-nosotros/"
+  status = 301
+
+[[redirects]]
+  from = "/trabajo"
+  to = "/trabaja-con-nosotros/"
+  status = 301
+
 # Web de una sola página: cualquier ruta desconocida muestra la portada
 [[redirects]]
   from = "/*"

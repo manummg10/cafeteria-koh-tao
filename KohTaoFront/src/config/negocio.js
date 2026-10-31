@@ -1,5 +1,9 @@
 // 📇 Datos reales de la cafetería: ÚNICA fuente para Contacto, Footer, mapa y SEO (index.html, sitemap).
 // ⚠️ PENDIENTE: teléfono, horario y perfiles reales de redes (la dirección ya es la real).
+// 🚧 Local en obras: la web muestra solo el vídeo de cabecera y la oferta de empleo.
+// Al abrir, poner false y vuelve la web completa (carta, sobre nosotros, contacto...).
+export const MODO_PREAPERTURA = true;
+
 export const NEGOCIO = {
   nombre: 'Koh Tao Café',
   sitioUrl: 'https://cafeteriakohtao.netlify.app', // cambiar aquí si se compra dominio propio
