@@ -3,11 +3,11 @@ import { FaInstagram, FaFacebookF } from 'react-icons/fa';
 import { NEGOCIO, MODO_PREAPERTURA, direccionCompleta, mapaComoLlegarUrl, telefonoHref } from '../config/negocio';
 import { DESARROLLADOR } from '../config/desarrollador';
 
-// Siempre se muestran; sin URL real aún, el icono no es enlace y avisa "Próximamente"
+// Solo las redes con perfil real; sin ninguna, el pie no muestra la columna "Síguenos"
 const REDES = [
   { url: NEGOCIO.redes.instagram, titulo: 'Instagram', Icono: FaInstagram },
   { url: NEGOCIO.redes.facebook, titulo: 'Facebook', Icono: FaFacebookF },
-];
+].filter(({ url }) => url);
 
 const claseIconoRed = 'bg-white/10 p-2.5 rounded-full transition-all duration-300 flex items-center justify-center';
 
@@ -33,7 +33,7 @@ function Footer() {
   return (
     <footer className="bg-[#4a3319] text-[#e6dfd5] border-t border-[#d4b285]/20 font-sans">
       {/* Contenedor principal */}
-      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div className={`max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 gap-10 ${REDES.length ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
         
         {/* Columna 1: Identidad */}
         <div className="flex flex-col gap-4 text-center md:text-left">
@@ -71,6 +71,7 @@ function Footer() {
         </div>
 
         {/* Columna 3: Redes Sociales */}
+        {REDES.length > 0 && (
         <div className="flex flex-col gap-4 text-center md:text-left items-center md:items-start">
           <h4 className="font-sans font-semibold text-white uppercase tracking-widest text-xs mb-2 border-b border-[#d4b285]/20 pb-1.5 w-fit">
             Síguenos
@@ -79,19 +80,15 @@ function Footer() {
             No te pierdas nuestras novedades diarias y tartas especiales.
           </p>
           <div className="flex gap-4">
-            {REDES.map(({ url, titulo, Icono }) => (url ? (
+            {REDES.map(({ url, titulo, Icono }) => (
               <a key={titulo} href={url} target="_blank" rel="noopener noreferrer" title={titulo} aria-label={titulo}
                 className={`${claseIconoRed} hover:bg-[#d4b285] hover:text-[#4a3319]`}>
                 <Icono size={18} />
               </a>
-            ) : (
-              <span key={titulo} title={`${titulo} (próximamente)`} aria-label={`${titulo}, próximamente`}
-                className={`${claseIconoRed} opacity-60 cursor-default`}>
-                <Icono size={18} />
-              </span>
-            )))}
+            ))}
           </div>
         </div>
+        )}
 
       </div>
 

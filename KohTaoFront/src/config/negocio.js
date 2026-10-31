@@ -20,8 +20,9 @@ export const NEGOCIO = {
     { dias: 'Sábados y Domingos', horas: '9:00h - 14:00h | 17:00h - 21:00h' },
   ],
   redes: {
-    instagram: 'https://www.instagram.com', // TODO: URL del perfil real cuando exista
-    facebook: 'https://www.facebook.com', // TODO: URL de la página real cuando exista
+    // null = no se muestra. Con al menos un perfil real aparece la columna "Síguenos" del pie
+    instagram: null, // p. ej. 'https://www.instagram.com/kohtaocafe'
+    facebook: null,
   },
 };
 
