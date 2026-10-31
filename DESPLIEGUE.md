@@ -1,6 +1,6 @@
 # Koh Tao Café · Web
 
-Web pública de una sola página (React + Vite + Tailwind), publicada en **Netlify**: https://cafeteriakohtao.netlify.app
+Web pública de una sola página (React + Vite + Tailwind), publicada en **Cloudflare Pages**: https://cafeteriakohtao.pages.dev
 
 No hay servidor ni base de datos: todo el contenido está en el código y se publica con `git push` a `main`.
 
@@ -28,32 +28,15 @@ npm run build    # comprueba que compila antes de publicar
 
 ## Publicar
 
-`git push` a `main` → Netlify compila y publica en 1-2 minutos (`netlify.toml` define la carpeta y el build; las cabeceras de seguridad y los enlaces cortos están en `KohTaoFront/public/_headers` y `_redirects`).
+`git push` a `main` → **Cloudflare Pages** compila y publica en 1-2 minutos. Proyecto `cafeteriakohtao` conectado al repositorio: directorio raíz `KohTaoFront`, `npm run build`, salida `dist`. Las cabeceras de seguridad y los enlaces cortos están en `KohTaoFront/public/_headers` y `_redirects`; la versión de Node en `KohTaoFront/.node-version`.
 
-## Mudanza a Cloudflare Pages (preparada, pendiente)
+Se dejó Netlify porque su plan gratuito muestra a los visitantes un distintivo "Powered by Netlify". El sitio de Netlify sigue activo **solo para redirigir** los enlaces antiguos (`cafeteriakohtao.netlify.app/...`) a la nueva dirección (`netlify.toml`); al ser una redirección no muestra el distintivo. No borrarlo mientras circulen enlaces antiguos.
 
-Motivo: el plan gratuito de Netlify muestra a los visitantes un distintivo "Powered by Netlify"; Cloudflare Pages es gratis y no lo pone.
-El proyecto ya funciona en las dos plataformas (`_headers`, `_redirects` y `KohTaoFront/.node-version` las leen ambas). Pasos el día de la mudanza (~5 min):
+Si se compra dominio propio: conectarlo en Cloudflare (**Custom domains**), poner esa dirección en `NEGOCIO.sitioUrl` y en el `to` de `netlify.toml`.
 
-1. Crear cuenta en https://dash.cloudflare.com → **Workers & Pages → Create → Pages → Connect to Git** → autorizar GitHub y elegir el repositorio `cafeteria-koh-tao`.
-2. Configuración del build:
-   - Project name: `cafeteriakohtao` (será la dirección `https://cafeteriakohtao.pages.dev`)
-   - Production branch: `main`
-   - Framework preset: *None* · Build command: `npm run build` · Build output directory: `dist`
-   - Root directory (Advanced): `KohTaoFront`
-3. **Save and Deploy**. Cuando termine, cambiar `NEGOCIO.sitioUrl` en `src/config/negocio.js` por la nueva dirección (canonical, vista previa al compartir y sitemap) y hacer `git push`.
-4. Pendiente al abrir el local: el formulario "Escríbenos" usa Netlify Forms y **no funciona en Cloudflare** → sustituirlo por un botón de correo como el de empleo.
-5. Cuando todo funcione, borrar el sitio en Netlify (el enlace `netlify.app` deja de funcionar) y volver a enviar el sitemap en Google Search Console con la nueva dirección.
+## Formulario "Escríbenos" (pendiente al abrir el local)
 
-Si se compra dominio propio, conectarlo en Cloudflare (**Custom domains**) y poner esa dirección en `NEGOCIO.sitioUrl`.
-
-## Formulario "Escríbenos" (Netlify Forms)
-
-Los mensajes llegan a Netlify sin servidor propio (plan gratuito: 100 al mes).
-1. En Netlify, ve a **Site configuration → Forms → Enable form detection** (una sola vez) y vuelve a desplegar.
-2. En **Forms → Form notifications**, añade una notificación por email para recibir cada mensaje en el correo de la cafetería.
-
-El campo oculto `bot-field` descarta el spam de bots.
+Usa Netlify Forms, que **no funciona en Cloudflare Pages**. Mientras dure el modo pre-apertura no se muestra; antes de abrir hay que sustituirlo por un botón de correo como el de empleo (o por otro servicio de formularios).
 
 ## Modo pre-apertura (local en obras)
 
@@ -62,7 +45,7 @@ Con `MODO_PREAPERTURA = true` en `KohTaoFront/src/config/negocio.js`, la web ent
 
 ## Trabaja con nosotros (oferta de empleo)
 
-Página propia para compartir por WhatsApp/Instagram: **https://cafeteriakohtao.netlify.app/trabaja-con-nosotros/** (atajos: `/empleo` y `/trabajo`).
+Página propia para compartir por WhatsApp/Instagram: **https://cafeteriakohtao.pages.dev/trabaja-con-nosotros/** (atajos: `/empleo` y `/trabajo`).
 - Textos, puesto, correo y fecha: `KohTaoFront/src/config/empleo.js`. Para cerrar la oferta, `activa: false` (se quita el aviso de la portada).
 - El botón **Envíanos tu CV** abre la app de correo del propio dispositivo con destinatario, asunto y un texto base ya escritos; el candidato adjunta el CV y lo envía directo a `kohtaocafeelejido@gmail.com`. No pasa por Netlify ni requiere configuración.
 - Vista previa al compartir: `public/empleo-cartel.jpg` (el cartel). Incluye datos `JobPosting` para Google Empleos.
@@ -76,4 +59,4 @@ Se genera solo en cada build con `KohTaoFront/seo/vitePluginSeo.js`, a partir de
 
 Si se compra dominio propio, basta con cambiar `NEGOCIO.sitioUrl`.
 
-**Google Search Console** (una vez): https://search.google.com/search-console → Añadir propiedad → *Prefijo de URL* `https://cafeteriakohtao.netlify.app/` → verificar con **Etiqueta HTML** (copia el valor de `content` y se añade a `index.html`) → Sitemaps → enviar `sitemap.xml` → Inspección de URLs → *Solicitar indexación*.
+**Google Search Console** (una vez): https://search.google.com/search-console → Añadir propiedad → *Prefijo de URL* `https://cafeteriakohtao.pages.dev/` → verificar con **Etiqueta HTML** (copia el valor de `content` y se añade a `index.html`) → Sitemaps → enviar `sitemap.xml` → Inspección de URLs → *Solicitar indexación*.

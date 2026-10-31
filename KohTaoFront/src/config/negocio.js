@@ -6,7 +6,7 @@ export const MODO_PREAPERTURA = true;
 
 export const NEGOCIO = {
   nombre: 'Koh Tao Café',
-  sitioUrl: 'https://cafeteriakohtao.netlify.app', // cambiar aquí si se compra dominio propio
+  sitioUrl: 'https://cafeteriakohtao.pages.dev', // cambiar aquí si se compra dominio propio
   direccion: {
     calle: 'C/ Océano Atlántico, 15',
     codigoPostal: '04700',

@@ -1,13 +1,13 @@
+# La web se publica en Cloudflare Pages (https://cafeteriakohtao.pages.dev).
+# Netlify solo redirige los enlaces antiguos (*.netlify.app) a la nueva dirección:
+# al ser una redirección no sirve ninguna página, así que no muestra el distintivo de Netlify.
 [build]
   base = "KohTaoFront"
-  command = "npm run build"
-  publish = "dist"
+  command = "echo 'Solo redirecciones a Cloudflare Pages'"
+  publish = "public"
 
-# Cabeceras y enlaces cortos: KohTaoFront/public/_headers y _redirects (compartidos con Cloudflare Pages)
-
-# Web de una sola página: cualquier ruta desconocida muestra la portada
-# (en Cloudflare Pages no hace falta: lo hace solo al no haber 404.html)
 [[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
+  to = "https://cafeteriakohtao.pages.dev/:splat"
+  status = 301
+  force = true
