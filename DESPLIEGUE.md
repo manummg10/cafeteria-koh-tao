@@ -28,7 +28,24 @@ npm run build    # comprueba que compila antes de publicar
 
 ## Publicar
 
-`git push` a `main` → Netlify compila y publica en 1-2 minutos (`netlify.toml` ya define la carpeta, el build y las cabeceras de seguridad).
+`git push` a `main` → Netlify compila y publica en 1-2 minutos (`netlify.toml` define la carpeta y el build; las cabeceras de seguridad y los enlaces cortos están en `KohTaoFront/public/_headers` y `_redirects`).
+
+## Mudanza a Cloudflare Pages (preparada, pendiente)
+
+Motivo: el plan gratuito de Netlify muestra a los visitantes un distintivo "Powered by Netlify"; Cloudflare Pages es gratis y no lo pone.
+El proyecto ya funciona en las dos plataformas (`_headers`, `_redirects` y `KohTaoFront/.node-version` las leen ambas). Pasos el día de la mudanza (~5 min):
+
+1. Crear cuenta en https://dash.cloudflare.com → **Workers & Pages → Create → Pages → Connect to Git** → autorizar GitHub y elegir el repositorio `cafeteria-koh-tao`.
+2. Configuración del build:
+   - Project name: `cafeteriakohtao` (será la dirección `https://cafeteriakohtao.pages.dev`)
+   - Production branch: `main`
+   - Framework preset: *None* · Build command: `npm run build` · Build output directory: `dist`
+   - Root directory (Advanced): `KohTaoFront`
+3. **Save and Deploy**. Cuando termine, cambiar `NEGOCIO.sitioUrl` en `src/config/negocio.js` por la nueva dirección (canonical, vista previa al compartir y sitemap) y hacer `git push`.
+4. Pendiente al abrir el local: el formulario "Escríbenos" usa Netlify Forms y **no funciona en Cloudflare** → sustituirlo por un botón de correo como el de empleo.
+5. Cuando todo funcione, borrar el sitio en Netlify (el enlace `netlify.app` deja de funcionar) y volver a enviar el sitemap en Google Search Console con la nueva dirección.
+
+Si se compra dominio propio, conectarlo en Cloudflare (**Custom domains**) y poner esa dirección en `NEGOCIO.sitioUrl`.
 
 ## Formulario "Escríbenos" (Netlify Forms)
 

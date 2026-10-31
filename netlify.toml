@@ -3,28 +3,11 @@
   command = "npm run build"
   publish = "dist"
 
-# Enlaces cortos a la oferta de empleo (deben ir antes de la regla general)
-[[redirects]]
-  from = "/empleo"
-  to = "/trabaja-con-nosotros/"
-  status = 301
-
-[[redirects]]
-  from = "/trabajo"
-  to = "/trabaja-con-nosotros/"
-  status = 301
+# Cabeceras y enlaces cortos: KohTaoFront/public/_headers y _redirects (compartidos con Cloudflare Pages)
 
 # Web de una sola página: cualquier ruta desconocida muestra la portada
+# (en Cloudflare Pages no hace falta: lo hace solo al no haber 404.html)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
