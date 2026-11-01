@@ -13,17 +13,16 @@ function HeroSection({ textoBoton = 'Descubrir la experiencia' }) {
       id="inicio" // 🧭 ID añadido para la navegación desde la barra
       className="relative w-full h-screen flex justify-center items-center text-center px-5 overflow-hidden font-sans"
     >
-      {/* 🎥 VÍDEO DE FONDO EN SUSTITUCIÓN DE LA IMAGEN */}
+      {/* 🎥 VÍDEO DE FONDO: el póster (primer fotograma) se ve al instante mientras carga el vídeo */}
       <video
         autoPlay
         loop
         muted
         playsInline
+        poster="/videos/hero-cafeteria-poster.webp"
         className="absolute top-0 left-0 w-full h-full object-cover z-0"
       >
         <source src="/videos/hero-cafeteria.mp4" type="video/mp4" />
-        {/* Enlace de streaming por si quieres comprobarlo ya mismo antes de descargar el vídeo: */}
-        <source src="https://assets.mixkit.co/videos/preview/mixkit-coffee-being-poured-into-a-cup-34441-large.mp4" type="video/mp4" />
       </video>
 
       {/* Capa oscura superpuesta (Overlay) */}
